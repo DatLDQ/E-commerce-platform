@@ -1,0 +1,21 @@
+{% extends "base.html" %}{% load shop %}
+{% block title %}So sánh sản phẩm — LevelUp Gear{% endblock %}
+{% block content %}
+<div class="wrap section">
+  <h1>So sánh sản phẩm</h1>
+  {% if products %}
+  <div class="table-wrap card">
+    <table class="table">
+      <tr><th></th>{% for p in products %}<td style="min-width:200px">{% with img=p.main_image %}{% if img %}<img src="{{ img.image.url }}" alt="" style="width:120px;border-radius:12px">{% endif %}{% endwith %}<a href="{{ p.get_absolute_url }}"><b>{{ p.name }}</b></a><div><a class="small" style="color:var(--danger)" href="?ids={{ p.compare_without }}" data-compare-set="{{ p.compare_without }}">✕ Bỏ khỏi so sánh</a></div></td>{% endfor %}</tr>
+      <tr><th>Giá</th>{% for p in products %}<td class="price">{{ p.current_price|vnd }}</td>{% endfor %}</tr>
+      <tr><th>Đánh giá</th>{% for p in products %}<td>{{ p.avg_rating|default:"—"|floatformat:1 }}★ ({{ p.review_count }})</td>{% endfor %}</tr>
+      <tr><th>Thương hiệu</th>{% for p in products %}<td>{{ p.brand.name }}</td>{% endfor %}</tr>
+      {% for k in spec_keys %}<tr><th>{{ k }}</th>{% for p in products %}<td>{{ p.specs|get_item:k|default:"—" }}</td>{% endfor %}</tr>{% endfor %}
+      <tr><th>Bảo hành</th>{% for p in products %}<td>{{ p.warranty_months }} tháng</td>{% endfor %}</tr>
+      <tr><th></th>{% for p in products %}<td>{% if p.in_stock %}<form method="post" action="{% url 'cart:add' p.pk %}" data-add-to-cart>{% csrf_token %}<button class="btn btn-primary btn-sm">Thêm vào giỏ</button></form>{% else %}<span class="stock-out">Hết hàng</span>{% endif %}</td>{% endfor %}</tr>
+    </table>
+  </div>
+  <p class="muted small">Bấm “So sánh” ở trang sản phẩm để thêm (tối đa 4). <a href="?ids=" data-compare-set="">Xoá tất cả</a></p>
+  {% else %}<p class="muted">Chưa chọn sản phẩm nào để so sánh.</p>{% endif %}
+</div>
+{% endblock %}

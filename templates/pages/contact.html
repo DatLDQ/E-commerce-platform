@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Liên hệ — LevelUp Gear{% endblock %}
+{% block content %}
+<div class="wrap section">
+  <div class="two-col">
+    <div class="card">
+      <h1>Liên hệ & khiếu nại</h1>
+      <p class="muted">Gửi câu hỏi, góp ý hoặc khiếu nại. Chúng tôi phản hồi trong 24 giờ làm việc.</p>
+      <form method="post" novalidate>
+        {% csrf_token %}{{ form.website }}
+        <div class="form-grid two">
+          {% include "partials/field.html" with field=form.name %}
+          {% include "partials/field.html" with field=form.email %}
+          {% include "partials/field.html" with field=form.subject class="span-2" %}
+          {% include "partials/field.html" with field=form.message class="span-2" %}
+        </div>
+        <button class="btn btn-primary">Gửi yêu cầu</button>
+      </form>
+    </div>
+    <aside class="card summary">
+      <h3>Showroom & hotline</h3>
+      <p><svg class="icon icon-sm" style="vertical-align:-3px"><use href="#i-pin"/></svg> {{ BUSINESS.address }}</p>
+      <p>Hotline: <b>{{ BUSINESS.hotline }}</b> (8:00–21:00, cả cuối tuần)</p>
+      <p>Email: {{ BUSINESS.email }}</p>
+      <p class="small muted">Trường hợp không đồng ý với kết quả giải quyết, khách hàng có thể liên hệ Cục Cạnh tranh và Bảo vệ người tiêu dùng (Bộ Công Thương) theo <a href="{% url 'pages:policy' 'giai-quyet-khieu-nai' %}">cơ chế giải quyết khiếu nại</a>.</p>
+    </aside>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,7 @@
+{% if products %}
+<section class="section {{ variant }}">
+  <div class="section-head"><h2>{{ title }}</h2>{% if more_url %}<a class="section-more" href="{{ more_url }}">Xem tất cả <svg class="icon icon-sm"><use href="#i-chevron"/></svg></a>{% endif %}</div>
+  {% if subtitle %}<p class="muted small" style="margin-top:-8px">{{ subtitle }}</p>{% endif %}
+  <div class="scroller">{% for p in products %}{% include "partials/product_card.html" %}{% endfor %}</div>
+</section>
+{% endif %}

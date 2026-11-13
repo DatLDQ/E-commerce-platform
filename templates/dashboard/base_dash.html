@@ -1,0 +1,31 @@
+{% load static shop %}<!doctype html>
+<html lang="vi"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Quản lý{% endblock %} — LevelUp Gear Admin</title>
+<link rel="icon" href="{% static 'img/favicon.svg' %}">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Chakra+Petch:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/main.css' %}"><link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head><body>
+{% include "partials/icons.html" %}
+<div class="dash">
+  <aside class="dash-side">
+    <a href="{% url 'dashboard:overview' %}" class="logo"><img src="{% static 'img/logo.svg' %}" class="logo-mark" alt=""><span>LevelUp<b>Admin</b></span></a>
+    {% url 'dashboard:overview' as d1 %}{% url 'dashboard:orders' as d2 %}{% url 'dashboard:products' as d3 %}{% url 'dashboard:customers' as d4 %}
+    <nav aria-label="Quản lý">
+      <a href="{{ d1 }}" {% if request.path == d1 %}class="active"{% endif %}><svg class="icon"><use href="#i-dashboard"/></svg>Tổng quan</a>
+      <a href="{{ d2 }}" {% if d2 in request.path %}class="active"{% endif %}><svg class="icon"><use href="#i-box"/></svg>Đơn hàng</a>
+      <a href="{{ d3 }}" {% if d3 in request.path %}class="active"{% endif %}><svg class="icon"><use href="#i-keyboard"/></svg>Sản phẩm</a>
+      <a href="{{ d4 }}" {% if request.path == d4 %}class="active"{% endif %}><svg class="icon"><use href="#i-user"/></svg>Khách hàng</a>
+      <a href="{% url 'admin:index' %}"><svg class="icon"><use href="#i-shield"/></svg>Django Admin</a>
+      <a href="{% url 'pages:home' %}"><svg class="icon"><use href="#i-cart"/></svg>Xem cửa hàng</a>
+    </nav>
+  </aside>
+  <main class="dash-main" id="main">
+    {% if messages %}<div class="toasts">{% for m in messages|unique_messages %}<div class="toast {{ m.tags }}">{{ m }}<button data-dismiss aria-label="Đóng">×</button></div>{% endfor %}</div>{% endif %}
+    {% block content %}{% endblock %}
+  </main>
+</div>
+<script src="{% static 'js/main.js' %}" defer></script>
+{% block scripts %}{% endblock %}
+</body></html>

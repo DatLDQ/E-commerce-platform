@@ -1,0 +1,22 @@
+{% extends "pages/policies/_base.html" %}
+{% block policy %}
+<h2>1. Thông tin người bán</h2>
+<p>Website được vận hành bởi <b>{{ BUSINESS.legal_name }}</b>, MST {{ BUSINESS.tax_code }}, địa chỉ {{ BUSINESS.address }}, hotline {{ BUSINESS.hotline }}, email {{ BUSINESS.email }}. LevelUp Gear là website thương mại điện tử bán hàng (mô hình B2C) theo Luật Thương mại điện tử số 122/2025/QH15 và các văn bản hướng dẫn.</p>
+<h2>2. Thông tin sản phẩm & giá</h2>
+<ul>
+  <li>Mỗi sản phẩm hiển thị đầy đủ tên, thương hiệu, thông số kỹ thuật, thời hạn bảo hành, tình trạng tồn kho và hình ảnh thực tế.</li>
+  <li>Giá niêm yết bằng Việt Nam đồng (VND), <b>đã bao gồm thuế GTGT</b>. Phí vận chuyển được hiển thị riêng và rõ ràng trước khi khách xác nhận đặt hàng.</li>
+  <li>Giá khuyến mãi ghi rõ giá gốc và mức giảm. Chương trình khuyến mãi tuân thủ quy định về khuyến mại hiện hành.</li>
+</ul>
+<h2>3. Quy trình giao kết hợp đồng</h2>
+<ol>
+  <li>Khách chọn sản phẩm và thêm vào giỏ hàng.</li>
+  <li>Tại trang thanh toán, khách nhập thông tin nhận hàng, chọn phương thức giao hàng và thanh toán, xem lại toàn bộ chi phí.</li>
+  <li>Khách tích chọn đồng ý điều khoản và bấm “Đặt hàng”. Hệ thống gửi email xác nhận có mã đơn — đây là thời điểm hợp đồng mua bán được giao kết.</li>
+  <li>Khách có thể <b>huỷ đơn miễn phí</b> khi đơn ở trạng thái “Chờ xác nhận” hoặc “Đã xác nhận”.</li>
+</ol>
+<h2>4. Trách nhiệm của khách hàng</h2>
+<p>Cung cấp thông tin chính xác; bảo mật tài khoản; không sử dụng website cho mục đích gian lận, đặt hàng ảo hoặc phát tán mã độc.</p>
+<h2>5. Luật áp dụng</h2>
+<p>Điều khoản được điều chỉnh bởi pháp luật Việt Nam, gồm Luật Thương mại điện tử 2025, Luật Bảo vệ quyền lợi người tiêu dùng 2023, Luật Giao dịch điện tử 2023 và Luật Bảo vệ dữ liệu cá nhân 2025.</p>
+{% endblock %}

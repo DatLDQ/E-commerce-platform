@@ -1,0 +1,24 @@
+{% extends "base.html" %}{% load shop %}
+{% block title %}Chuyển khoản — đơn {{ order.code }}{% endblock %}
+{% block content %}
+<div class="wrap section" style="max-width:640px"><div class="card">
+  <h1 style="font-size:1.5rem">Chuyển khoản cho đơn {{ order.code }}</h1>
+  {% if order.payment_status == "paid" %}<p class="pill pill-success">Đã nhận thanh toán</p>{% else %}
+  <p class="muted">Quét mã VietQR (chuẩn NAPAS) bằng bất kỳ ứng dụng ngân hàng nào — số tài khoản, số tiền và nội dung được điền sẵn, hoặc chuyển khoản theo thông tin bên dưới. Đơn được xác nhận ngay khi nhân viên đối soát (thường trong 15 phút giờ hành chính).</p>
+  {% if qr %}<div class="qr"><img src="{{ qr }}" alt="Mã QR chuyển khoản đơn {{ order.code }}"></div>{% endif %}
+  {% endif %}
+  <div style="margin-top:16px">
+    <div class="summary-row"><span>Ngân hàng</span><b>{{ bank.bank }}</b></div>
+    <div class="summary-row"><span>Số tài khoản</span><b>{{ bank.account_no }}</b></div>
+    <div class="summary-row"><span>Chủ tài khoản</span><b>{{ bank.account_name }}</b></div>
+    <div class="summary-row"><span>Số tiền</span><b class="price">{{ order.total|vnd }}</b></div>
+    <div class="summary-row"><span>Nội dung (bắt buộc)</span><b style="color:var(--primary)">{{ transfer_note }}</b></div>
+  </div>
+  <a class="btn btn-primary btn-block" style="margin-top:16px" href="{{ order.get_absolute_url }}">{% if order.payment_status == "paid" %}Xem đơn hàng{% else %}Tôi đã chuyển khoản — xem đơn hàng{% endif %}</a>
+  {% if can_simulate %}
+  <div class="sim-note" style="margin-top:16px"><b>Môi trường mô phỏng.</b> Mã QR là VietQR thật (chuẩn NAPAS) nhưng tài khoản nhận là tài khoản mẫu — <b>đừng chuyển tiền thật</b>. Bấm nút dưới để giả lập ngân hàng báo “đã nhận tiền” (trên shop thật, việc này do webhook ngân hàng hoặc nhân viên đối soát làm).
+    <form method="post" action="{% url 'payments:bank_transfer_simulate' order.code %}" style="margin-top:10px">{% csrf_token %}<button class="btn btn-secondary btn-block">Mô phỏng: ngân hàng báo đã nhận tiền</button></form>
+  </div>
+  {% endif %}
+</div></div>
+{% endblock %}

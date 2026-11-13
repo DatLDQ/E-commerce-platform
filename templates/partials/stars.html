@@ -1,0 +1,1 @@
+{% load shop %}<span class="stars" aria-label="{{ value|default:0|floatformat:1 }} trên 5 sao">{% for s in value|stars %}<svg class="icon {% if s == 'empty' %}empty{% endif %}"><use href="#i-star"/></svg>{% endfor %}</span>

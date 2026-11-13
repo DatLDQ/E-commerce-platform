@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Nguồn ảnh — LevelUp Gear{% endblock %}
+{% block content %}
+<div class="wrap section prose">
+  <h1>Nguồn ảnh</h1>
+  <p>Ảnh sản phẩm và ảnh minh hoạ trên website demo này là ảnh có giấy phép mở (CC0, Public Domain, CC BY, CC BY-SA), lấy từ <a href="https://commons.wikimedia.org/" rel="noopener" target="_blank">Wikimedia Commons</a> và <a href="https://openverse.org/" rel="noopener" target="_blank">Openverse</a>. Một số ảnh chỉ mang tính minh hoạ, có thể không đúng chính xác mẫu sản phẩm. Ảnh đã được cắt khung và thu nhỏ. Sản phẩm không có ảnh thật dùng hình đồ hoạ do hệ thống tự vẽ.</p>
+  {% if credits %}
+  <div class="table-wrap"><table class="table credits">
+    <thead><tr><th>Dùng cho</th><th>Ảnh gốc</th><th>Tác giả</th><th>Giấy phép</th></tr></thead>
+    <tbody>
+    {% for c in credits %}
+      <tr>
+        <td>{{ c.used_for }}</td>
+        <td><a href="{{ c.source_url }}" rel="noopener nofollow" target="_blank">{{ c.title|default:"(không tên)"|truncatechars:60 }}</a></td>
+        <td>{% if c.creator_url %}<a href="{{ c.creator_url }}" rel="noopener nofollow" target="_blank">{{ c.creator|default:"—" }}</a>{% else %}{{ c.creator|default:"—" }}{% endif %}</td>
+        <td>{% if c.license_url %}<a href="{{ c.license_url }}" rel="noopener nofollow" target="_blank">{{ c.license }}</a>{% else %}{{ c.license }}{% endif %}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% else %}<p class="muted">Chưa có ảnh nào từ nguồn bên ngoài.</p>{% endif %}
+</div>
+{% endblock %}

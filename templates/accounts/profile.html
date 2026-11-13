@@ -1,0 +1,18 @@
+{% extends "base.html" %}{% load shop %}
+{% block title %}Hồ sơ — LevelUp Gear{% endblock %}
+{% block content %}
+<div class="wrap section"><div class="account">
+  {% include "accounts/_nav.html" %}
+  <div class="grid" style="gap:16px">
+    <div class="card">
+      <h1 style="font-size:1.4rem">Hồ sơ của tôi</h1>
+      <form method="post" novalidate>{% csrf_token %}
+        <div class="form-grid two">{% for f in form %}{% if f.name != "marketing_opt_in" %}{% include "partials/field.html" with field=f %}{% endif %}{% endfor %}</div>
+        {% include "partials/field.html" with field=form.marketing_opt_in %}
+        <button class="btn btn-primary">Lưu thay đổi</button>
+      </form>
+    </div>
+    {% if recommended %}<div>{% include "partials/product_row.html" with title="Gợi ý dành cho bạn" products=recommended %}</div>{% endif %}
+  </div>
+</div></div>
+{% endblock %}

@@ -1,0 +1,2 @@
+<div class="kpi"><div class="label">{{ label }}</div><div class="value">{{ value }}</div>
+{% if delta is not None and delta != "" %}<div class="delta {% if delta >= 0 %}up{% else %}down{% endif %}">{% if delta >= 0 %}▲{% else %}▼{% endif %} {{ delta }}{{ unit }} so với kỳ trước</div>{% elif note %}<div class="delta muted">{{ note }}</div>{% else %}<div class="delta muted">&nbsp;</div>{% endif %}</div>

@@ -1,0 +1,79 @@
+{% extends "base.html" %}{% load shop static %}
+{% block content %}
+<div class="wrap">
+  <section class="hero" aria-label="Khuyến mãi nổi bật">
+    <div class="hero-slides">
+      {% for b in banners %}
+      <div class="hero-main theme-{{ b.theme }}" data-slide {% if not forloop.first %}hidden{% endif %}
+           style="--hero-img:url('{% if b.image %}{{ b.image.url }}{% else %}{% static 'img/hero/'|add:b.theme|add:'.jpg' %}{% endif %}')">
+        <span class="hero-kicker">{{ b.kicker|default:"Ưu đãi nổi bật" }}</span>
+        {% if forloop.first %}<h1>{{ b.title }}</h1>{% else %}<h2 class="hero-title">{{ b.title }}</h2>{% endif %}
+        <p>{{ b.subtitle }}</p>
+        <div class="hero-cta">
+          <a href="{{ b.cta_url }}" class="btn btn-primary btn-lg">{{ b.cta_text }}</a>
+          <a href="{% url 'catalog:list' %}" class="btn btn-ghost btn-lg">Tất cả sản phẩm</a>
+        </div>
+      </div>
+      {% empty %}
+      <div class="hero-main" style="--hero-img:url('{% static 'img/hero/violet.jpg' %}')">
+        <span class="hero-kicker">LevelUp Gear</span>
+        <h1>Gear chuẩn pro, giá chuẩn sinh viên</h1><p>Chuột, bàn phím, tai nghe chính hãng — giao nhanh 2H.</p>
+        <div class="hero-cta"><a href="{% url 'catalog:list' %}" class="btn btn-primary btn-lg">Khám phá ngay</a></div>
+      </div>
+      {% endfor %}
+      {% if banners|length > 1 %}
+      <div class="hero-dots" data-hero-dots>
+        {% for b in banners %}<button type="button" class="theme-{{ b.theme }}{% if forloop.first %} active{% endif %}" aria-label="Banner {{ forloop.counter }}: {{ b.title }}"{% if forloop.first %} aria-current="true"{% endif %}></button>{% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    <div class="hero-side">
+      <a class="hero-tile" href="{% url 'catalog:list' %}?tag=fps" style="--tile-img:url('{% static 'img/hero/tile-fps.jpg' %}')">
+        <span class="tile-go" aria-hidden="true"><svg class="icon icon-sm"><use href="#i-chevron"/></svg></span>
+        <b><svg class="icon"><use href="#i-mouse"/></svg>Setup FPS</b><span class="small">Chuột siêu nhẹ, pad cứng tốc độ, tai nghe nghe bước chân</span></a>
+      <a class="hero-tile" href="{% url 'catalog:list' %}?tag=moba" style="--tile-img:url('{% static 'img/hero/tile-moba.jpg' %}')">
+        <span class="tile-go" aria-hidden="true"><svg class="icon icon-sm"><use href="#i-chevron"/></svg></span>
+        <b><svg class="icon"><use href="#i-keyboard"/></svg>Setup MOBA</b><span class="small">Bàn phím cơ phản hồi nhanh, chuột nhiều nút</span></a>
+      <a class="hero-tile" href="{% url 'catalog:list' %}?tag=streaming" style="--tile-img:url('{% static 'img/hero/tile-stream.jpg' %}')">
+        <span class="tile-go" aria-hidden="true"><svg class="icon icon-sm"><use href="#i-chevron"/></svg></span>
+        <b><svg class="icon"><use href="#i-mic"/></svg>Góc streamer</b><span class="small">Micro, webcam, card capture — lên sóng chuyên nghiệp</span></a>
+    </div>
+  </section>
+
+  <div class="usp">
+    <div><svg class="icon"><use href="#i-shield"/></svg><span><b>100% chính hãng</b><br><span class="muted">Bảo hành 12–36 tháng</span></span></div>
+    <div><svg class="icon"><use href="#i-truck"/></svg><span><b>Giao nhanh 2H</b><br><span class="muted">Nội thành TP.HCM</span></span></div>
+    <div><svg class="icon"><use href="#i-return"/></svg><span><b>Đổi trả 7 ngày</b><br><span class="muted">Lỗi là đổi mới</span></span></div>
+    <div><svg class="icon"><use href="#i-card"/></svg><span><b>Thanh toán linh hoạt</b><br><span class="muted">COD · VNPay · MoMo</span></span></div>
+  </div>
+
+  <section class="section" aria-labelledby="cats-h">
+    <div class="section-head"><h2 id="cats-h">Danh mục</h2></div>
+    <div class="cat-grid">
+      {% for c in categories %}
+      <a class="cat-tile" href="{{ c.get_absolute_url }}">
+        <span class="cat-thumb"><img src="{% static 'img/categories/'|add:c.slug|add:'.jpg' %}" alt="" loading="lazy" width="240" height="240"><svg class="icon"><use href="#i-{{ c.icon }}"/></svg></span>
+        {{ c.name }}<span class="cat-count">{{ c.n_products }} sản phẩm</span>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+
+  {% url 'catalog:list' as all_url %}
+  {% include "partials/product_row.html" with title="⚡ Flash sale" products=flash_sale more_url=all_url|add:"?on_sale=1" variant="is-flash" %}
+  {% include "partials/product_row.html" with title="Dành riêng cho bạn" subtitle="Gợi ý bởi AI dựa trên sản phẩm bạn đã xem và mua" products=for_you %}
+
+  <div class="promo-strip">
+    <a class="promo" href="{% url 'catalog:category' 'man-hinh' %}" style="--promo-img:url('{% static 'img/hero/promo-monitor.jpg' %}')">
+      <h3>Màn hình 100–144Hz</h3><p>Từ 24" esports đến ultrawide 34" cong — thấy địch trước khi địch thấy bạn.</p><span class="btn btn-sm">Chọn màn hình</span>
+    </a>
+    <a class="promo" href="{% url 'catalog:list' %}?on_sale=1" style="--promo-img:url('{% static 'img/hero/promo-sale.jpg' %}')">
+      <h3>Giảm thêm 15% đơn từ 2 triệu</h3><p>Nhập mã <code>LEVELUP15</code> ở bước thanh toán, tối đa 500.000₫.</p><span class="btn btn-sm">Săn deal</span>
+    </a>
+  </div>
+
+  {% include "partials/product_row.html" with title="Sản phẩm nổi bật" products=featured more_url=all_url %}
+  {% include "partials/product_row.html" with title="Hàng mới về" products=new_arrivals more_url=all_url|add:"?sort=new" %}
+  {% include "partials/product_row.html" with title="Bạn đã xem gần đây" products=recently_viewed %}
+</div>
+{% endblock %}

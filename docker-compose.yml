@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: levelup
+      POSTGRES_USER: levelup
+      POSTGRES_PASSWORD: levelup
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U levelup -d levelup"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+  web:
+    build: .
+    ports: ["8000:8000"]
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgres://levelup:levelup@db:5432/levelup
+      DJANGO_DEBUG: "False"
+      # Plain HTTP on localhost: no HTTPS redirect, no Secure-only cookies
+      DJANGO_SSL_REDIRECT: "False"
+      DJANGO_HTTPS: "False"
+      DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1"
+      DJANGO_CSRF_TRUSTED_ORIGINS: "http://localhost:8000,http://127.0.0.1:8000"
+      SITE_URL: "http://localhost:8000"
+    volumes: [media:/app/media]
+    depends_on:
+      db:
+        condition: service_healthy
+volumes:
+  pgdata:
+  media:

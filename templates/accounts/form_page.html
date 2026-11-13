@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} — LevelUp Gear{% endblock %}
+{% block content %}
+<div class="wrap"><div class="card auth-card"><h1 style="font-size:1.5rem">{{ title }}</h1>
+  {% if validlink is not False %}
+  <form method="post" novalidate>{% csrf_token %}{% for f in form %}{% include "partials/field.html" with field=f %}{% endfor %}<button class="btn btn-primary btn-block">Xác nhận</button></form>
+  {% else %}<p>Liên kết không hợp lệ hoặc đã hết hạn.</p>{% endif %}
+</div></div>
+{% endblock %}

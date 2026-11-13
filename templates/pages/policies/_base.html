@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} — LevelUp Gear{% endblock %}
+{% block content %}
+<div class="wrap">
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">Trang chủ</a> / <span>Chính sách</span> / <span>{{ title }}</span></nav>
+  <div class="policy-layout">
+    <nav class="card side-nav" aria-label="Danh sách chính sách" style="align-self:start">
+      {% for s, t in policies.items %}<a href="{% url 'pages:policy' s %}" {% if s == slug %}class="active" aria-current="page"{% endif %}>{{ t }}</a>{% endfor %}
+    </nav>
+    <article class="card prose">
+      <h1>{{ title }}</h1>
+      <p class="muted small">Cập nhật: 01/10/2026 · Áp dụng cho mọi giao dịch trên website LevelUp Gear.</p>
+      {% block policy %}{% endblock %}
+    </article>
+  </div>
+</div>
+{% endblock %}

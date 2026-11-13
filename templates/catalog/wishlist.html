@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Sản phẩm yêu thích — LevelUp Gear{% endblock %}
+{% block content %}
+<div class="wrap section">
+  <h1>Sản phẩm yêu thích</h1>
+  {% if items %}
+    <div class="products-grid">{% for w in items %}{% with p=w.product %}<div style="display:flex;flex-direction:column;gap:6px">{% include "partials/product_card.html" %}
+      <form method="post" action="{% url 'catalog:toggle_wishlist' p.pk %}">{% csrf_token %}<input type="hidden" name="next" value="{% url 'catalog:wishlist' %}"><button class="btn btn-sm btn-ghost" style="width:100%">Bỏ khỏi yêu thích</button></form></div>{% endwith %}{% endfor %}</div>
+  {% else %}
+    <div class="empty card"><svg class="icon"><use href="#i-heart"/></svg><h2>Chưa có sản phẩm yêu thích</h2><a class="btn btn-primary" href="{% url 'catalog:list' %}">Khám phá sản phẩm</a></div>
+  {% endif %}
+</div>
+{% endblock %}

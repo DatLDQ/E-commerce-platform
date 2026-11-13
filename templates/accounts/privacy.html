@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Quyền riêng tư — LevelUp Gear{% endblock %}
+{% block content %}
+<div class="wrap section"><div class="account">
+  {% include "accounts/_nav.html" %}
+  <div class="grid" style="gap:16px">
+    <div class="card prose">
+      <h1 style="font-size:1.4rem">Quyền riêng tư & dữ liệu cá nhân</h1>
+      <p>Theo Luật Bảo vệ dữ liệu cá nhân 2025, bạn có quyền truy cập, chỉnh sửa, rút lại sự đồng ý và yêu cầu xoá dữ liệu của mình.</p>
+      <p class="small muted">Bạn đã đồng ý xử lý dữ liệu lúc: {{ user.data_consent_at|date:"H:i d/m/Y"|default:"—" }} · Nhận email ưu đãi: {{ user.marketing_opt_in|yesno:"Có,Không" }} (<a href="{% url 'accounts:profile' %}">thay đổi</a>)</p>
+      <a class="btn btn-secondary" href="{% url 'accounts:export_data' %}">Tải về dữ liệu của tôi (JSON)</a>
+    </div>
+    <div class="card" style="border-color:var(--danger)">
+      <h2 style="font-size:1.1rem;color:var(--danger)">Xoá tài khoản</h2>
+      <p class="small">Tài khoản sẽ bị vô hiệu hoá, thông tin cá nhân (tên, email, SĐT, địa chỉ) bị xoá/ẩn danh ngay. Chứng từ đơn hàng được giữ lại ở dạng ẩn danh để đáp ứng nghĩa vụ kế toán, thuế.</p>
+      <form method="post" action="{% url 'accounts:delete_account' %}" style="display:flex;gap:8px;flex-wrap:wrap">{% csrf_token %}
+        <label class="sr-only" for="confirm">Nhập XOA để xác nhận</label>
+        <input id="confirm" name="confirm" placeholder="Nhập XOA để xác nhận" style="max-width:260px">
+        <button class="btn btn-danger">Xoá tài khoản vĩnh viễn</button>
+      </form>
+    </div>
+  </div>
+</div></div>
+{% endblock %}

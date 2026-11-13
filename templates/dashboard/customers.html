@@ -1,0 +1,26 @@
+{% extends "dashboard/base_dash.html" %}{% load shop %}
+{% block title %}Khách hàng{% endblock %}
+{% block content %}
+<div class="dash-head"><div><h1>Khách hàng & phân khúc RFM</h1><span class="muted small">Recency (ngày từ lần mua cuối) · Frequency (số đơn) · Monetary (tổng chi tiêu), mỗi chỉ số chấm 1–5 theo nhóm 20% khách hàng</span></div></div>
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">
+  <a class="pill {% if not segment %}pill-primary{% endif %}" href="?{% if q %}q={{ q|urlencode }}{% endif %}">Tất cả ({{ total }})</a>
+  {% for seg, n in counts.items %}<a class="pill {% if segment == seg %}pill-primary{% endif %}" href="?segment={{ seg|urlencode }}{% if q %}&q={{ q|urlencode }}{% endif %}">{{ seg }} ({{ n }})</a>{% endfor %}
+</div>
+<form class="filters-bar" method="get">
+  <input type="search" name="q" value="{{ q }}" placeholder="Tên, email, SĐT, tên đăng nhập" aria-label="Tìm khách hàng">
+  {% if segment %}<input type="hidden" name="segment" value="{{ segment }}">{% endif %}
+  <button class="btn btn-primary btn-sm">Tìm</button>{% if q %} <a class="btn btn-ghost btn-sm" href="?{% if segment %}segment={{ segment|urlencode }}{% endif %}">Xoá tìm kiếm</a>{% endif %}
+</form>
+<div class="panel"><div class="table-wrap"><table class="table">
+  <thead><tr><th>Khách hàng</th><th>Số đơn</th><th>Tổng chi tiêu</th><th>Mua gần nhất</th><th>RFM</th><th>Phân khúc</th><th>Gợi ý hành động</th></tr></thead>
+  <tbody>{% for r in page %}<tr>
+    <td><a href="{% url 'dashboard:customer_detail' r.user_id %}"><b>{{ r.user__last_name }} {{ r.user__first_name }}</b></a><div class="small muted">{{ r.user__email }}{% if r.user__phone %} · {{ r.user__phone }}{% endif %}</div></td>
+    <td>{{ r.n }}</td><td class="price">{{ r.spent|vnd }}</td><td>{{ r.recency }} ngày trước</td>
+    <td><span class="small" title="R {{ r.r }} · F {{ r.f }} · M {{ r.m }}">{{ r.rfm }}</span></td>
+    <td><span class="pill {% if r.segment == 'VIP' %}pill-success{% elif r.segment == 'Có nguy cơ rời bỏ' %}pill-danger{% elif r.segment == 'Trung thành' %}pill-primary{% endif %}">{{ r.segment }}</span></td>
+    <td class="small muted">{% if r.segment == 'VIP' %}Tặng quà, ưu tiên hàng mới{% elif r.segment == 'Trung thành' %}Mời tham gia chương trình tích điểm{% elif r.segment == 'Có nguy cơ rời bỏ' %}Gửi mã win-back 15%{% else %}Email gợi ý phụ kiện đi kèm{% endif %}</td>
+  </tr>{% empty %}<tr><td colspan="7" class="muted">{% if q or segment %}Không có khách hàng phù hợp.{% else %}Chưa có khách hàng.{% endif %}</td></tr>{% endfor %}</tbody>
+</table></div></div>
+<p class="small muted">Chỉ tính khách đã đăng ký và có ít nhất một đơn không bị huỷ / hoàn trả. Trang {{ page.number }}/{{ page.paginator.num_pages }} · {{ page.paginator.count }} khách.</p>
+{% include "partials/pagination.html" %}
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Câu hỏi thường gặp — LevelUp Gear{% endblock %}
+{% block content %}
+<div class="wrap section prose">
+  <h1>Câu hỏi thường gặp</h1>
+  {% for f in faqs %}
+  <details class="card" style="margin-bottom:10px"><summary style="cursor:pointer;font-weight:600">{{ f.question }}</summary><p style="margin-top:10px">{{ f.answer|linebreaksbr }}</p></details>
+  {% empty %}<p class="muted">Chưa có câu hỏi nào.</p>{% endfor %}
+  <p>Không tìm thấy câu trả lời? Hỏi <b>LevelBot</b> ở góc phải màn hình hoặc <a href="{% url 'pages:contact' %}">liên hệ chúng tôi</a>.</p>
+</div>
+{% endblock %}

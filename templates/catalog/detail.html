@@ -1,0 +1,138 @@
+{% extends "base.html" %}{% load shop %}
+{% block title %}{{ product.name }} — giá {{ product.current_price|vnd }} | LevelUp Gear{% endblock %}
+{% block meta_description %}{{ product.short_description|default:product.name }}{% endblock %}
+{% block og_title %}{{ product.name }}{% endblock %}
+{% block og_extra %}{% with img=product.main_image %}{% if img %}<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ img.image.url }}">{% endif %}{% endwith %}{% endblock %}
+{% block body_class %}has-sticky-buy{% endblock %}
+{% block head %}
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Product","name":"{{ product.name|escapejs }}","sku":"{{ product.sku }}","brand":{"@type":"Brand","name":"{{ product.brand.name|escapejs }}"},"description":"{{ product.short_description|escapejs }}",
+ "offers":{"@type":"Offer","priceCurrency":"VND","price":"{{ product.current_price }}","availability":"https://schema.org/{% if product.in_stock %}InStock{% else %}OutOfStock{% endif %}"}{% if product.review_count %},
+ "aggregateRating":{"@type":"AggregateRating","ratingValue":"{{ product.avg_rating|floatformat:1 }}","reviewCount":"{{ product.review_count }}"}{% endif %}}
+</script>
+{% endblock %}
+{% block content %}
+<div class="wrap">
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">Trang chủ</a> / <a href="{{ product.category.get_absolute_url }}">{{ product.category.name }}</a> / <span>{{ product.name }}</span></nav>
+  <div class="pdp">
+    <div>
+      <div class="gallery-main">{% with img=images.0 %}{% if img %}<img src="{{ img.image.url }}" alt="{{ img.alt|default:product.name }}" width="800" height="800">{% endif %}{% endwith %}</div>
+      {% if images|length > 1 %}
+      <div class="thumbs" role="list">{% for img in images %}<button role="listitem" data-src="{{ img.image.url }}" class="{% if forloop.first %}active{% endif %}" aria-label="Ảnh {{ forloop.counter }}"><img src="{{ img.image.url }}" alt="" loading="lazy"></button>{% endfor %}</div>
+      {% endif %}
+    </div>
+
+    <div>
+      <a href="{% url 'catalog:list' %}?brand={{ product.brand.slug }}" class="pcard-brand">{{ product.brand.name }}</a>
+      <h1 style="margin-top:6px">{{ product.name }}</h1>
+      <div class="rating-line" style="font-size:.9rem">
+        {% include "partials/stars.html" with value=product.avg_rating %}
+        <a href="#reviews">{{ product.review_count }} đánh giá</a> · Đã bán {{ product.sold_count }} · SKU {{ product.sku }}
+      </div>
+      <div class="pdp-price">
+        <span class="price">{{ product.current_price|vnd }}</span>
+        {% if product.sale_price %}<span class="price-old" style="font-size:1rem">{{ product.price|vnd }}</span><span class="pill pill-sale">Tiết kiệm {{ product.discount_percent }}%</span>{% endif %}
+      </div>
+      <p class="muted small" style="margin-top:-6px">Giá đã bao gồm VAT · Bảo hành {{ product.warranty_months }} tháng chính hãng</p>
+      <p>{{ product.short_description }}</p>
+
+      {% if product.in_stock %}
+      <form method="post" action="{% url 'cart:add' product.pk %}" data-add-to-cart id="buy-form">
+        {% csrf_token %}
+        <div style="display:flex;align-items:center;gap:12px">
+          <span class="small muted">Số lượng</span>
+          <div class="qty"><button type="button" data-step="-1" aria-label="Giảm">−</button><input type="number" name="quantity" value="1" min="1" max="{{ product|qty_max }}" aria-label="Số lượng"><button type="button" data-step="1" aria-label="Tăng">+</button></div>
+          {% if product.low_stock %}<span class="stock-low">Chỉ còn {{ product.stock }} sản phẩm</span>{% else %}<span class="pill pill-success">Còn hàng</span>{% endif %}
+        </div>
+        <div class="buy-row">
+          <button class="btn btn-ghost btn-lg" type="submit"><svg class="icon"><use href="#i-cart"/></svg>Thêm vào giỏ</button>
+          <button class="btn btn-primary btn-lg" type="submit" name="buy_now" value="1">Mua ngay</button>
+        </div>
+      </form>
+      {% else %}
+        <div class="card" style="margin:16px 0"><b class="stock-out">Tạm hết hàng.</b> <span class="muted">Hỏi LevelBot để tìm sản phẩm tương tự còn sẵn.</span></div>
+      {% endif %}
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <form method="post" action="{% url 'catalog:toggle_wishlist' product.pk %}" data-wishlist data-login="{% url 'accounts:login' %}?next={{ request.path|urlencode }}">
+          {% csrf_token %}<button class="btn btn-sm {% if in_wishlist %}btn-secondary{% else %}btn-ghost{% endif %}"><svg class="icon icon-sm"><use href="#i-heart"/></svg><span>{% if in_wishlist %}Đã yêu thích{% else %}Yêu thích{% endif %}</span></button>
+        </form>
+        <button class="btn btn-sm btn-ghost" data-compare="{{ product.pk }}" data-url="{% url 'catalog:compare' %}"><svg class="icon icon-sm"><use href="#i-compare"/></svg>So sánh</button>
+      </div>
+      <div class="perks card" style="padding:14px">
+        <div><svg class="icon"><use href="#i-truck"/></svg>Giao nhanh 2H nội thành · Miễn phí đơn từ {{ FREE_SHIP|vnd }}</div>
+        <div><svg class="icon"><use href="#i-return"/></svg>Đổi mới trong 7 ngày nếu lỗi nhà sản xuất</div>
+        <div><svg class="icon"><use href="#i-shield"/></svg>Hàng chính hãng, có hoá đơn VAT</div>
+      </div>
+    </div>
+  </div>
+
+  {% if bought_together %}
+  <section class="section">
+    <div class="section-head"><h2>Thường được mua cùng</h2></div>
+    <p class="muted small" style="margin-top:-8px">Dựa trên giỏ hàng của các game thủ khác đã mua sản phẩm này</p>
+    <div class="scroller">{% for p in bought_together %}{% include "partials/product_card.html" %}{% endfor %}</div>
+  </section>
+  {% endif %}
+
+  <section class="section">
+    <div class="tabs" role="tablist">
+      <button role="tab" class="active" aria-selected="true" aria-controls="tab-desc">Mô tả</button>
+      <button role="tab" aria-selected="false" aria-controls="tab-specs">Thông số kỹ thuật</button>
+      <button role="tab" aria-selected="false" aria-controls="reviews">Đánh giá ({{ product.review_count }})</button>
+    </div>
+    <div class="tab-panel active prose" id="tab-desc" role="tabpanel">{{ product.description|linebreaks }}</div>
+    <div class="tab-panel" id="tab-specs" role="tabpanel">
+      <table class="specs">
+        <tr><th>Thương hiệu</th><td>{{ product.brand.name }}{% if product.brand.country %} ({{ product.brand.country }}){% endif %}</td></tr>
+        {% for k, v in product.specs.items %}<tr><th>{{ k }}</th><td>{{ v }}</td></tr>{% endfor %}
+        <tr><th>Bảo hành</th><td>{{ product.warranty_months }} tháng</td></tr>
+        <tr><th>Khối lượng đóng gói</th><td>{{ product.weight_grams }} g</td></tr>
+      </table>
+    </div>
+    <div class="tab-panel" id="reviews" role="tabpanel">
+      <div class="rating-summary">
+        <div class="card" style="text-align:center">
+          <div class="rating-big">{{ product.avg_rating|default:0|floatformat:1 }}</div>
+          {% include "partials/stars.html" with value=product.avg_rating %}
+          <div class="muted small">{{ product.review_count }} đánh giá</div>
+        </div>
+        <div class="card">
+          {% for star, n in distribution.items %}
+          <div class="bar"><span>{{ star }}★</span><div class="bar-track"><div class="bar-fill" style="width:{% if product.review_count %}{% widthratio n product.review_count 100 %}{% else %}0{% endif %}%"></div></div><span class="muted">{{ n }}</span></div>
+          {% endfor %}
+        </div>
+      </div>
+      {% if review_form %}
+      <form method="post" action="{% url 'catalog:review' product.slug %}" class="card" style="margin-top:16px">
+        {% csrf_token %}<h3>Viết đánh giá của bạn</h3>
+        <div class="field"><span style="font-weight:600">Số sao</span><div style="display:flex;gap:12px;flex-wrap:wrap">{% for r in review_form.rating %}<label class="check">{{ r.tag }} {{ r.choice_label }}</label>{% endfor %}</div></div>
+        {% include "partials/field.html" with field=review_form.title %}
+        {% include "partials/field.html" with field=review_form.comment %}
+        <button class="btn btn-primary">Gửi đánh giá</button>
+      </form>
+      {% elif not user.is_authenticated %}
+        <p class="muted" style="margin-top:12px"><a href="{% url 'accounts:login' %}?next={{ request.path|urlencode }}">Đăng nhập</a> và mua sản phẩm để viết đánh giá.</p>
+      {% elif not has_reviewed %}
+        <p class="muted" style="margin-top:12px">Chỉ khách hàng đã nhận sản phẩm mới có thể đánh giá — đảm bảo đánh giá trung thực.</p>
+      {% endif %}
+      {% for r in reviews %}
+      <div class="review">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">{% include "partials/stars.html" with value=r.rating %}<b>{{ r.title }}</b>{% if r.is_verified_purchase %}<span class="pill pill-success"><svg class="icon icon-sm"><use href="#i-check"/></svg>Đã mua hàng</span>{% endif %}</div>
+        <p style="margin:6px 0">{{ r.comment }}</p>
+        <span class="small muted">{{ r.user.first_name|default:r.user.username }}{% if r.user.gamer_tag %} ({{ r.user.gamer_tag }}){% endif %} · {{ r.created_at|date:"d/m/Y" }}</span>
+      </div>
+      {% empty %}<p class="muted" style="margin-top:12px">Chưa có đánh giá nào.</p>{% endfor %}
+    </div>
+  </section>
+
+  {% include "partials/product_row.html" with title="Có thể bạn cũng thích" subtitle="Gợi ý AI: kết hợp hành vi mua sắm và độ tương đồng sản phẩm" products=similar %}
+  {% include "partials/product_row.html" with title="Bạn đã xem gần đây" products=recently_viewed %}
+</div>
+
+{% if product.in_stock %}
+<div class="sticky-buy">
+  <div style="flex:1;min-width:0"><div class="small" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ product.name }}</div><span class="price">{{ product.current_price|vnd }}</span></div>
+  <button class="btn btn-primary" form="buy-form" type="submit" name="buy_now" value="1">Mua ngay</button>
+</div>
+{% endif %}
+{% endblock %}

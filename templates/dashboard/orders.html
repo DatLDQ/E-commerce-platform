@@ -1,0 +1,18 @@
+{% extends "dashboard/base_dash.html" %}{% load shop %}
+{% block title %}Đơn hàng{% endblock %}
+{% block content %}
+<div class="dash-head"><h1>Đơn hàng</h1><a class="btn btn-ghost" href="?{{ request.GET.urlencode }}&export=csv">Xuất CSV</a></div>
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">
+  <a class="pill {% if not request.GET.status %}pill-primary{% endif %}" href="?">Tất cả</a>
+  {% for v, l in statuses %}<a class="pill {% if request.GET.status == v %}pill-primary{% endif %}" href="?status={{ v }}">{{ l }} ({{ counts|get_item:v }})</a>{% endfor %}
+</div>
+<form class="filters-bar" method="get">
+  <input type="search" name="q" value="{{ q }}" placeholder="Mã đơn, tên, SĐT, email" aria-label="Tìm đơn">
+  <select name="payment_status" aria-label="Trạng thái thanh toán"><option value="">TT thanh toán</option>{% for v, l in pay_statuses %}<option value="{{ v }}" {% if request.GET.payment_status == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
+  <select name="payment_method" aria-label="Phương thức"><option value="">Phương thức</option>{% for v, l in pay_methods %}<option value="{{ v }}" {% if request.GET.payment_method == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
+  {% if request.GET.status %}<input type="hidden" name="status" value="{{ request.GET.status }}">{% endif %}
+  <button class="btn btn-ghost">Lọc</button>
+</form>
+<div class="panel">{% include "dashboard/_orders_table.html" with orders=page.object_list %}</div>
+{% include "partials/pagination.html" %}
+{% endblock %}

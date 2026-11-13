@@ -1,0 +1,63 @@
+{% extends "base.html" %}{% load shop %}
+{% block title %}Giỏ hàng — LevelUp Gear{% endblock %}
+{% block content %}
+<div class="wrap section">
+  <div class="steps" aria-label="Tiến trình mua hàng"><span class="done"><b>1</b>Giỏ hàng</span><span>›</span><span><b>2</b>Thông tin & thanh toán</span><span>›</span><span><b>3</b>Hoàn tất</span></div>
+  {% if quote and quote.lines %}
+  <div class="two-col">
+    <section class="card" aria-labelledby="cart-h">
+      <h1 id="cart-h" style="font-size:1.4rem">Giỏ hàng (<span data-cart-units>{{ quote.item_count }}</span> sản phẩm)</h1>
+      <p class="small" data-free-ship>{% if quote.free_ship_gap > 0 %}Mua thêm <b>{{ quote.free_ship_gap|vnd }}</b> để được miễn phí giao hàng{% else %}🎉 Đơn của bạn được <b>miễn phí giao hàng</b>{% endif %}</p>
+      <div class="progress-ship" aria-hidden="true"><span style="width:{% widthratio quote.subtotal FREE_SHIP 100 %}%;max-width:100%"></span></div>
+      {% for l in quote.lines %}
+      <div class="cart-line">
+        <a href="{{ l.product.get_absolute_url }}">{% with img=l.product.main_image %}{% if img %}<img src="{{ img.image.url }}" alt="{{ l.product.name }}">{% endif %}{% endwith %}</a>
+        <div>
+          <span class="pcard-brand">{{ l.product.brand.name }}</span>
+          <a href="{{ l.product.get_absolute_url }}" style="display:block;color:var(--text);font-weight:600">{{ l.product.name }}</a>
+          <span class="small muted">{{ l.unit_price|vnd }}{% if l.product.sale_price %} <s>{{ l.product.price|vnd }}</s>{% endif %}</span>
+          {% if l.quantity > l.product.stock %}<div class="stock-out">Chỉ còn {{ l.product.stock }} sản phẩm — vui lòng giảm số lượng</div>{% endif %}
+          <div class="cart-line-foot">
+            <form method="post" action="{% url 'cart:update' l.product_id %}" data-cart-line>
+              {% csrf_token %}
+              <div class="qty"><button type="button" data-step="-1" aria-label="Giảm">−</button><input type="number" name="quantity" value="{{ l.quantity }}" min="0" max="{{ l.product|qty_max }}" aria-label="Số lượng {{ l.product.name }}"><button type="button" data-step="1" aria-label="Tăng">+</button></div>
+              <noscript><button class="btn btn-sm btn-ghost">Cập nhật</button></noscript>
+            </form>
+            <b class="price" data-line-total>{{ l.line_total|vnd }}</b>
+            <form method="post" action="{% url 'cart:remove' l.product_id %}">{% csrf_token %}<button class="icon-btn" aria-label="Xoá {{ l.product.name }}"><svg class="icon"><use href="#i-trash"/></svg></button></form>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+      <a href="{% url 'catalog:list' %}" class="btn btn-ghost" style="margin-top:14px">← Tiếp tục mua sắm</a>
+    </section>
+
+    <aside class="card summary" aria-label="Tóm tắt đơn hàng">
+      <h2 style="font-size:1.2rem">Tóm tắt</h2>
+      <form method="post" action="{% url 'cart:coupon' %}" style="display:flex;gap:8px;margin-bottom:12px">
+        {% csrf_token %}
+        {% if quote.coupon %}
+          <span class="pill pill-success" style="flex:1"><svg class="icon icon-sm"><use href="#i-gift"/></svg>{{ quote.coupon.code }}</span>
+          <button class="btn btn-sm btn-ghost" name="remove" value="1">Gỡ mã</button>
+        {% else %}
+          <label class="sr-only" for="coupon">Mã giảm giá</label>
+          <input id="coupon" name="code" placeholder="Mã giảm giá" style="text-transform:uppercase">
+          <button class="btn btn-secondary">Áp dụng</button>
+        {% endif %}
+      </form>
+      {% if quote.coupon_msg and not quote.coupon %}<p class="small" style="color:var(--danger)">{{ quote.coupon_msg }}</p>{% endif %}
+      <div class="summary-row"><span>Tạm tính</span><b data-subtotal>{{ quote.subtotal|vnd }}</b></div>
+      {% if quote.discount %}<div class="summary-row"><span>Giảm giá</span><b data-discount style="color:var(--success)">-{{ quote.discount|vnd }}</b></div>{% endif %}
+      <div class="summary-row muted"><span>Phí vận chuyển</span><span>{% if quote.coupon.kind == "freeship" %}Miễn phí (mã {{ quote.coupon.code }}){% else %}Tính ở bước sau{% endif %}</span></div>
+      <div class="summary-row summary-total"><span>Tổng</span><span class="price" data-total>{{ quote.total|vnd }}</span></div>
+      <p class="small muted">Đã bao gồm VAT</p>
+      <a href="{% url 'orders:checkout' %}" class="btn btn-primary btn-lg btn-block">Tiến hành đặt hàng</a>
+      <div class="perks small"><div><svg class="icon icon-sm"><use href="#i-lock"/></svg>Thanh toán bảo mật — không lưu thông tin thẻ</div></div>
+    </aside>
+  </div>
+  {% include "partials/product_row.html" with title="Thường được mua kèm" products=suggestions %}
+  {% else %}
+  <div class="empty card"><svg class="icon"><use href="#i-cart"/></svg><h1 style="font-size:1.4rem">Giỏ hàng đang trống</h1><p class="muted">Cùng chọn vài món gear để lên trình nhé!</p><a class="btn btn-primary" href="{% url 'catalog:list' %}">Mua sắm ngay</a></div>
+  {% endif %}
+</div>
+{% endblock %}

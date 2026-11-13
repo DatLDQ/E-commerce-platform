@@ -1,0 +1,28 @@
+{% extends "dashboard/base_dash.html" %}{% load shop %}
+{% block title %}Khách hàng {{ customer.get_full_name|default:customer.username }}{% endblock %}
+{% block content %}
+<div class="dash-head"><div><a class="small" href="{% url 'dashboard:customers' %}">‹ Khách hàng</a><h1>{{ customer.last_name }} {{ customer.first_name }}{% if not customer.first_name and not customer.last_name %}{{ customer.username }}{% endif %}</h1>
+  <span class="muted small">@{{ customer.username }} · tham gia {{ customer.date_joined|date:"d/m/Y" }}{% if customer.last_login %} · đăng nhập gần nhất {{ customer.last_login|date:"H:i d/m/Y" }}{% endif %}</span></div>
+  {% if seg %}<span class="pill {% if seg.segment == 'VIP' %}pill-success{% elif seg.segment == 'Có nguy cơ rời bỏ' %}pill-danger{% elif seg.segment == 'Trung thành' %}pill-primary{% endif %}">{{ seg.segment }} · RFM {{ seg.rfm }}</span>{% endif %}
+</div>
+<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;align-items:start">
+  <section class="panel"><h2>Liên hệ</h2>
+    <p style="margin:0">{{ customer.email }}{% if customer.phone %}<br><a href="tel:{{ customer.phone }}">{{ customer.phone }}</a>{% endif %}</p>
+    <p class="small muted">Nhận email ưu đãi: {% if customer.marketing_opt_in %}Có{% else %}Không{% endif %}</p>
+    {% if seg %}<p class="small" style="margin:0">{{ seg.n }} đơn hợp lệ · tổng chi {{ seg.spent|vnd }} · mua gần nhất {{ seg.recency }} ngày trước</p>{% endif %}
+  </section>
+  <section class="panel"><h2>Sổ địa chỉ</h2>
+    {% for a in addresses %}<p class="small" style="margin:0 0 8px"><b>{{ a.full_name }}</b> · {{ a.phone }}{% if a.is_default %} <span class="pill pill-primary">Mặc định</span>{% endif %}<br><span class="muted">{{ a.one_line }}</span></p>{% empty %}<p class="muted small">Chưa lưu địa chỉ.</p>{% endfor %}
+  </section>
+</div>
+<section class="panel" style="margin-top:16px"><h2>Đơn hàng ({{ orders|length }})</h2>
+  <div class="table-wrap"><table class="table">
+    <thead><tr><th>Mã đơn</th><th>Ngày</th><th>Tổng</th><th>Thanh toán</th><th>Trạng thái</th></tr></thead>
+    <tbody>{% for o in orders %}<tr><td><a href="{% url 'dashboard:order_detail' o.code %}"><b>{{ o.code }}</b></a></td><td>{{ o.created_at|date:"d/m/Y" }}</td><td class="price">{{ o.total|vnd }}</td><td class="small">{{ o.get_payment_method_display }} · {{ o.get_payment_status_display }}</td><td><span class="pill">{{ o.get_status_display }}</span></td></tr>
+    {% empty %}<tr><td colspan="5" class="muted">Chưa có đơn hàng.</td></tr>{% endfor %}</tbody>
+  </table></div>
+</section>
+{% if reviews %}<section class="panel" style="margin-top:16px"><h2>Đánh giá gần đây</h2>
+  {% for r in reviews %}<p class="small" style="margin:0 0 8px"><b>{{ r.rating }}★</b> <a href="{{ r.product.get_absolute_url }}">{{ r.product.name }}</a> <span class="muted">— {{ r.created_at|date:"d/m/Y" }}</span></p>{% endfor %}
+</section>{% endif %}
+{% endblock %}

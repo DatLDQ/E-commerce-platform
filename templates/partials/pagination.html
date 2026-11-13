@@ -1,0 +1,11 @@
+{% load shop %}
+{% if page.has_other_pages %}
+<nav class="pagination" aria-label="Phân trang">
+  {% if page.has_previous %}<a href="{% query_replace page=page.previous_page_number %}" aria-label="Trang trước">‹</a>{% endif %}
+  {% for n in page.paginator.page_range %}
+    {% if n == page.number %}<span class="current" aria-current="page">{{ n }}</span>
+    {% elif n > page.number|add:-3 and n < page.number|add:3 %}<a href="{% query_replace page=n %}">{{ n }}</a>{% endif %}
+  {% endfor %}
+  {% if page.has_next %}<a href="{% query_replace page=page.next_page_number %}" aria-label="Trang sau">›</a>{% endif %}
+</nav>
+{% endif %}

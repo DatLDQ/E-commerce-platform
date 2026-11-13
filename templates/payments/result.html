@@ -1,0 +1,25 @@
+{% extends "base.html" %}{% load shop %}
+{% block title %}{% if invalid %}Giao dịch không hợp lệ{% else %}Kết quả thanh toán{% endif %}{% endblock %}
+{% block content %}
+<div class="wrap section" style="max-width:640px"><div class="card" style="text-align:center">
+  {% if invalid %}
+    <svg class="icon" style="width:64px;height:64px;color:var(--danger);margin:0 auto"><use href="#i-close"/></svg>
+    <h1>Giao dịch không hợp lệ</h1>
+    <p>Thông tin giao dịch không khớp hoặc đã bị thay đổi, nên hệ thống không ghi nhận kết quả này. Không có khoản tiền nào được xử lý từ đường dẫn này.</p>
+    <p class="small muted">Nếu bạn vừa thanh toán, hãy mở đơn hàng trong email xác nhận hoặc tra cứu đơn để xem trạng thái chính xác.</p>
+  {% elif success %}
+    <svg class="icon" style="width:64px;height:64px;color:var(--success);margin:0 auto"><use href="#i-check"/></svg>
+    <h1>Thanh toán thành công</h1>
+    <p>Đơn <b>{{ order.code }}</b> đã được thanh toán {{ payment.amount|vnd }} qua {{ payment.get_provider_display }}.</p>
+    <p class="small muted">Mã giao dịch: {{ payment.gateway_txn_no }}</p>
+  {% else %}
+    <svg class="icon" style="width:64px;height:64px;color:var(--danger);margin:0 auto"><use href="#i-close"/></svg>
+    <h1>Thanh toán chưa thành công</h1>
+    <p>{{ message }}. Đơn hàng {{ order.code }} vẫn được giữ — bạn có thể thanh toán lại hoặc đổi sang COD bằng cách liên hệ hotline.</p>
+  {% endif %}
+  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:12px">
+    {% if invalid %}<a class="btn btn-primary" href="{% url 'orders:lookup' %}">Tra cứu đơn hàng</a>{% else %}<a class="btn btn-primary" href="{{ order.get_absolute_url }}">Xem đơn hàng</a>{% endif %}
+    <a class="btn btn-ghost" href="{% url 'pages:home' %}">Về trang chủ</a>
+  </div>
+</div></div>
+{% endblock %}

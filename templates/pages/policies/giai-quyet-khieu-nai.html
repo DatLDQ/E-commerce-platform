@@ -1,0 +1,11 @@
+{% extends "pages/policies/_base.html" %}
+{% block policy %}
+<p>Cơ chế giải quyết khiếu nại tuân thủ Luật Bảo vệ quyền lợi người tiêu dùng số 19/2023/QH15.</p>
+<ol>
+  <li><b>Tiếp nhận:</b> qua hotline {{ BUSINESS.hotline }}, email {{ BUSINESS.email }}, <a href="{% url 'pages:contact' %}">form liên hệ</a> hoặc tại showroom.</li>
+  <li><b>Phản hồi:</b> xác nhận tiếp nhận trong 24 giờ làm việc; giải quyết trong tối đa 7 ngày làm việc.</li>
+  <li><b>Thương lượng:</b> hai bên ưu tiên thương lượng, hoà giải.</li>
+  <li><b>Cơ quan có thẩm quyền:</b> nếu không đạt thoả thuận, khách hàng có thể gửi yêu cầu tới Cục Cạnh tranh và Bảo vệ người tiêu dùng (Bộ Công Thương), Sở Công Thương TP.HCM, hoặc khởi kiện tại Toà án theo quy định.</li>
+</ol>
+<p>LevelUp Gear cam kết không cung cấp thông tin sai lệch về sản phẩm, không ép buộc giao dịch và bảo vệ thông tin người tiêu dùng.</p>
+{% endblock %}

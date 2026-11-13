@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Đăng ký — LevelUp Gear{% endblock %}
+{% block content %}
+<div class="wrap"><div class="card auth-card" style="max-width:620px">
+  <h1 style="font-size:1.5rem">Tạo tài khoản</h1>
+  <p class="muted small">Theo dõi đơn hàng, lưu địa chỉ, nhận gợi ý gear đúng gu và mã giảm 10% cho đơn đầu tiên.</p>
+  <form method="post" novalidate>{% csrf_token %}
+    <div class="form-grid two">
+      {% include "partials/field.html" with field=form.last_name %}{% include "partials/field.html" with field=form.first_name %}
+      {% include "partials/field.html" with field=form.username %}{% include "partials/field.html" with field=form.phone %}
+      {% include "partials/field.html" with field=form.email class="span-2" %}
+      {% include "partials/field.html" with field=form.password1 %}{% include "partials/field.html" with field=form.password2 %}
+      {% include "partials/field.html" with field=form.gamer_tag %}{% include "partials/field.html" with field=form.favorite_genre %}
+    </div>
+    {% include "partials/field.html" with field=form.marketing_opt_in %}
+    {% include "partials/field.html" with field=form.data_consent %}
+    <button class="btn btn-primary btn-block">Đăng ký</button>
+  </form>
+</div></div>
+{% endblock %}

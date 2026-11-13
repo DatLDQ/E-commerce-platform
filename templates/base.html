@@ -1,0 +1,182 @@
+{% load static shop %}<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}LevelUp Gear — Gaming gear chính hãng{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}LevelUp Gear — cửa hàng gaming gear chính hãng: chuột, bàn phím, tai nghe, màn hình, ghế gaming. Giao nhanh 2H tại TP.HCM, đổi trả 7 ngày.{% endblock %}">
+  <meta name="theme-color" content="#0d0e13">
+  <meta property="og:site_name" content="LevelUp Gear">
+  <meta property="og:title" content="{% block og_title %}LevelUp Gear{% endblock %}">
+  {% block og_extra %}{% endblock %}
+  <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Chakra+Petch:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% asset 'css/main.css' %}">
+  <script>
+    /* apply saved theme before first paint (no flash) */
+    try { var t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
+  {% block head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+{% include "partials/icons.html" %}
+<a class="skip-link" href="#main">Bỏ qua tới nội dung chính</a>
+
+<div class="topbar">
+  <svg class="icon icon-sm" style="vertical-align:-3px"><use href="#i-truck"/></svg>
+  Miễn phí giao hàng cho đơn từ {{ FREE_SHIP|vnd }} · Giao nhanh 2H nội thành TP.HCM · <a href="{% url 'pages:policy' 'doi-tra' %}">Đổi trả 7 ngày</a>
+</div>
+
+<header class="header">
+  <div class="wrap header-row">
+    <button class="icon-btn menu-toggle" data-open-drawer aria-label="Mở menu" aria-expanded="false"><svg class="icon"><use href="#i-menu"/></svg></button>
+    <a href="{% url 'pages:home' %}" class="logo" aria-label="LevelUp Gear — trang chủ">
+      <img src="{% static 'img/logo.svg' %}" class="logo-mark" alt="" width="34" height="34">
+      <span>LevelUp<b>Gear</b></span>
+    </a>
+    <form class="search" action="{% url 'catalog:list' %}" role="search" data-autocomplete="{% url 'catalog:autocomplete' %}">
+      <label class="sr-only" for="q-desktop">Tìm sản phẩm</label>
+      <svg class="icon"><use href="#i-search"/></svg>
+      <input id="q-desktop" type="search" name="q" value="{{ q|default:'' }}" placeholder="Tìm chuột, bàn phím, tai nghe…" autocomplete="off">
+    </form>
+    <nav class="header-actions" aria-label="Tài khoản và giỏ hàng">
+      <button class="icon-btn" data-theme-toggle aria-label="Đổi giao diện sáng/tối"><svg class="icon"><use href="#i-sun"/></svg></button>
+      {% if user.is_authenticated %}
+        <a class="icon-btn" href="{% url 'catalog:wishlist' %}" aria-label="Yêu thích"><svg class="icon"><use href="#i-heart"/></svg></a>
+        <div class="dropdown">
+          <button class="icon-btn" data-dropdown aria-haspopup="true" aria-expanded="false" aria-label="Tài khoản của {{ user }}"><svg class="icon"><use href="#i-user"/></svg></button>
+          <div class="dropdown-menu" role="menu">
+            <div class="small muted" style="padding:6px 12px">Xin chào, <b>{{ user.first_name|default:user.username }}</b></div>
+            <a href="{% url 'accounts:profile' %}" role="menuitem">Hồ sơ của tôi</a>
+            <a href="{% url 'orders:mine' %}" role="menuitem">Đơn hàng</a>
+            <a href="{% url 'accounts:addresses' %}" role="menuitem">Sổ địa chỉ</a>
+            <a href="{% url 'accounts:privacy' %}" role="menuitem">Quyền riêng tư</a>
+            {% if user.is_staff %}<a href="{% url 'dashboard:overview' %}" role="menuitem">⚙ Trang quản lý</a>{% endif %}
+            <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button type="submit" role="menuitem">Đăng xuất</button></form>
+          </div>
+        </div>
+      {% else %}
+        <a class="icon-btn" href="{% url 'accounts:login' %}?next={{ request.path|urlencode }}" aria-label="Đăng nhập"><svg class="icon"><use href="#i-user"/></svg></a>
+      {% endif %}
+      <a class="icon-btn" href="{% url 'cart:detail' %}" aria-label="Giỏ hàng, {{ cart_count }} sản phẩm">
+        <svg class="icon"><use href="#i-cart"/></svg>
+        <span class="badge-count" data-cart-count {% if not cart_count %}hidden{% endif %}>{{ cart_count }}</span>
+      </a>
+    </nav>
+  </div>
+  <div class="search-mobile">
+    <form class="search" action="{% url 'catalog:list' %}" role="search" data-autocomplete="{% url 'catalog:autocomplete' %}">
+      <label class="sr-only" for="q-mobile">Tìm sản phẩm</label>
+      <svg class="icon"><use href="#i-search"/></svg>
+      <input id="q-mobile" type="search" name="q" value="{{ q|default:'' }}" placeholder="Bạn cần tìm gear gì?" autocomplete="off">
+    </form>
+  </div>
+  <nav class="catnav" aria-label="Danh mục sản phẩm">
+    <ul class="wrap">
+      <li><a href="{% url 'catalog:list' %}?on_sale=1"><svg class="icon icon-sm"><use href="#i-bolt"/></svg>Flash sale</a></li>
+      {% for c in nav_categories %}
+        <li><a href="{{ c.get_absolute_url }}" {% if category and category.pk == c.pk %}class="active" aria-current="page"{% endif %}><svg class="icon icon-sm"><use href="#i-{{ c.icon }}"/></svg>{{ c.name }}</a></li>
+      {% endfor %}
+    </ul>
+  </nav>
+</header>
+
+<div class="drawer" id="drawer" aria-hidden="true">
+  <div class="drawer-backdrop" data-close-drawer></div>
+  <div class="drawer-panel" role="dialog" aria-label="Menu">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <strong>Danh mục</strong>
+      <button class="icon-btn" data-close-drawer aria-label="Đóng menu"><svg class="icon"><use href="#i-close"/></svg></button>
+    </div>
+    <a href="{% url 'catalog:list' %}"><svg class="icon"><use href="#i-box"/></svg>Tất cả sản phẩm</a>
+    <a href="{% url 'catalog:list' %}?on_sale=1"><svg class="icon"><use href="#i-bolt"/></svg>Flash sale</a>
+    {% for c in nav_categories %}<a href="{{ c.get_absolute_url }}"><svg class="icon"><use href="#i-{{ c.icon }}"/></svg>{{ c.name }}</a>{% endfor %}
+    <hr style="border-color:var(--border)">
+    <a href="{% url 'orders:lookup' %}"><svg class="icon"><use href="#i-truck"/></svg>Tra cứu đơn hàng</a>
+    <a href="{% url 'pages:contact' %}"><svg class="icon"><use href="#i-chat"/></svg>Liên hệ</a>
+  </div>
+</div>
+
+{% if messages %}
+<div class="toasts" role="status" aria-live="polite">
+  {% for m in messages|unique_messages %}<div class="toast {{ m.tags }}">{{ m }}<button aria-label="Đóng" data-dismiss>×</button></div>{% endfor %}
+</div>
+{% endif %}
+
+<main id="main">{% block content %}{% endblock %}</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <a href="{% url 'pages:home' %}" class="logo"><img src="{% static 'img/logo.svg' %}" class="logo-mark" alt="" width="34" height="34"><span>LevelUp<b>Gear</b></span></a>
+        <p class="muted" style="margin-top:10px">Gaming gear chính hãng cho game thủ Việt. Tư vấn đúng nhu cầu, giao nhanh, bảo hành tận tâm.</p>
+        <form class="newsletter" method="post" action="{% url 'pages:newsletter' %}">
+          {% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}">
+          <label class="sr-only" for="nl-email">Email nhận tin</label>
+          <input id="nl-email" type="email" name="email" placeholder="Email nhận ưu đãi" required>
+          <button class="btn btn-secondary">Đăng ký</button>
+        </form>
+      </div>
+      <div>
+        <h4>Hỗ trợ khách hàng</h4>
+        <ul>
+          <li><a href="{% url 'orders:lookup' %}">Tra cứu đơn hàng</a></li>
+          <li><a href="{% url 'pages:faq' %}">Câu hỏi thường gặp</a></li>
+          <li><a href="{% url 'pages:contact' %}">Liên hệ & khiếu nại</a></li>
+          <li><a href="{% url 'pages:about' %}">Về LevelUp Gear</a></li>
+          <li><a href="{% url 'pages:credits' %}">Nguồn ảnh</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Chính sách</h4>
+        <ul>
+          <li><a href="{% url 'pages:policy' 'dieu-khoan' %}">Điều khoản sử dụng</a></li>
+          <li><a href="{% url 'pages:policy' 'bao-mat' %}">Bảo mật dữ liệu cá nhân</a></li>
+          <li><a href="{% url 'pages:policy' 'doi-tra' %}">Đổi trả & hoàn tiền</a></li>
+          <li><a href="{% url 'pages:policy' 'van-chuyen' %}">Vận chuyển</a></li>
+          <li><a href="{% url 'pages:policy' 'bao-hanh' %}">Bảo hành</a></li>
+          <li><a href="{% url 'pages:policy' 'thanh-toan' %}">Thanh toán</a></li>
+          <li><a href="{% url 'pages:policy' 'giai-quyet-khieu-nai' %}">Giải quyết khiếu nại</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Thông tin doanh nghiệp</h4>
+        <ul class="muted small">
+          <li><b style="color:var(--text)">{{ BUSINESS.legal_name }}</b></li>
+          <li>MST: {{ BUSINESS.tax_code }}</li>
+          <li><svg class="icon icon-sm" style="vertical-align:-3px"><use href="#i-pin"/></svg> {{ BUSINESS.address }}</li>
+          <li>Hotline: <a href="tel:{{ BUSINESS.hotline|cut:' ' }}">{{ BUSINESS.hotline }}</a> · Email: <a href="mailto:{{ BUSINESS.email }}">{{ BUSINESS.email }}</a></li>
+        </ul>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">
+          <span class="pill">COD</span><span class="pill">VNPay</span><span class="pill">MoMo</span><span class="pill">VietQR</span>
+        </div>
+      </div>
+    </div>
+    <div class="legal">
+      <span>© {% now "Y" %} {{ BUSINESS.legal_name }}. Đồ án môn Thương mại điện tử CO3027 — HCMUT.</span>
+      <span class="bct-badge" title="{{ BUSINESS.registration }}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m8 12 3 3 5-6"/></svg>
+        Đã thông báo Bộ Công Thương (demo)
+      </span>
+    </div>
+  </div>
+</footer>
+
+{% if not cookie_consent %}
+<div class="cookie" id="cookie-banner" role="dialog" aria-label="Thông báo cookie">
+  <div><b>Cookie & quyền riêng tư.</b> Chúng tôi dùng cookie cần thiết để giỏ hàng và đăng nhập hoạt động, và cookie phân tích (ẩn danh) để cải thiện gợi ý sản phẩm. Xem <a href="{% url 'pages:policy' 'bao-mat' %}">Chính sách bảo mật</a>.</div>
+  <div class="cookie-actions">
+    <button class="btn btn-primary btn-sm" data-cookie="all">Đồng ý tất cả</button>
+    <button class="btn btn-ghost btn-sm" data-cookie="necessary">Chỉ cookie cần thiết</button>
+  </div>
+</div>
+{% endif %}
+
+{% include "partials/chatbot.html" %}
+<script src="{% asset 'js/main.js' %}" defer></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

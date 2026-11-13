@@ -1,0 +1,50 @@
+{% extends "dashboard/base_dash.html" %}{% load shop %}
+{% block title %}Đơn {{ order.code }}{% endblock %}
+{% block content %}
+<div class="dash-head">
+  <div><h1>Đơn {{ order.code }}</h1><span class="muted small">{{ order.created_at|date:"H:i d/m/Y" }} · IP {{ order.ip_address|default:"—" }}</span></div>
+  <div style="display:flex;gap:8px"><a class="btn btn-ghost" href="{% url 'dashboard:invoice' order.code %}" target="_blank">In hoá đơn</a><a class="btn btn-ghost" href="{% url 'dashboard:orders' %}">← Danh sách</a></div>
+</div>
+<div class="panels cols-2">
+  <div class="grid" style="gap:16px">
+    <section class="panel"><h2>Sản phẩm</h2>{% include "orders/_summary.html" %}</section>
+    <section class="panel"><h2>Lịch sử xử lý</h2>
+      <ul class="timeline">{% for h in history %}<li><b>{{ h.get_status_display }}</b> <span class="muted small">— {{ h.created_at|date:"H:i d/m/Y" }}{% if h.changed_by %} bởi {{ h.changed_by }}{% endif %}</span>{% if h.note %}<div class="small muted">{{ h.note }}</div>{% endif %}</li>{% endfor %}</ul>
+    </section>
+    <section class="panel"><h2>Giao dịch thanh toán</h2>
+      <div class="table-wrap"><table class="table"><thead><tr><th>Mã GD</th><th>Cổng</th><th>Số tiền</th><th>Mã phản hồi</th><th>Trạng thái</th><th>Thời gian</th></tr></thead>
+      <tbody>{% for p in payments %}<tr><td class="small">{{ p.txn_ref }}<br><span class="muted">{{ p.gateway_txn_no }}</span></td><td>{{ p.get_provider_display|truncatechars:20 }} ({{ p.gateway }})</td><td>{{ p.amount|vnd }}</td><td>{{ p.response_code|default:"—" }}</td><td>{{ p.get_status_display }}</td><td class="small">{{ p.created_at|date:"H:i d/m" }}</td></tr>{% empty %}<tr><td colspan="6" class="muted">Chưa có giao dịch online.</td></tr>{% endfor %}</tbody></table></div>
+    </section>
+  </div>
+  <div class="grid" style="gap:16px;align-content:start">
+    <section class="panel"><h2>Trạng thái</h2>
+      <p><span class="pill pill-primary">{{ order.get_status_display }}</span> <span class="pill {% if order.payment_status == 'paid' %}pill-success{% else %}pill-warning{% endif %}">{{ order.get_payment_status_display }}</span></p>
+      {% if order.allowed_next_statuses %}
+      <form method="post">{% csrf_token %}<input type="hidden" name="action" value="status">
+        <div class="field"><label for="st">Chuyển sang</label><select id="st" name="status">{% for v, l in order.allowed_next_statuses %}<option value="{{ v }}">{{ l }}</option>{% endfor %}</select></div>
+        <div class="field"><label for="note">Ghi chú</label><input id="note" name="note" placeholder="VD: đã gọi xác nhận"></div>
+        {% if order.status == "packing" and not order.delivery_method.is_pickup and not order.tracking_number %}<p class="small muted">Nhập đơn vị vận chuyển và mã vận đơn ở mục “Vận chuyển” trước khi chuyển sang “Đang giao”.</p>{% endif %}
+        <button class="btn btn-primary btn-block">Cập nhật trạng thái</button>
+      </form>
+      {% else %}<p class="muted small">Đơn đã ở trạng thái cuối.</p>{% endif %}
+      {% if order.payment_method == "bank" and order.payment_status != "paid" and order.status != "cancelled" %}
+      <form method="post" style="margin-top:10px">{% csrf_token %}<input type="hidden" name="action" value="mark_paid"><button class="btn btn-secondary btn-block">Xác nhận đã nhận chuyển khoản</button></form>
+      {% endif %}
+    </section>
+    <section class="panel"><h2>Vận chuyển</h2>
+      <p class="small">{{ order.delivery_method.name }} · {{ order.delivery_method.eta_label }}</p>
+      <form method="post">{% csrf_token %}<input type="hidden" name="action" value="tracking">
+        <div class="field"><label for="carrier">Đơn vị vận chuyển</label><select id="carrier" name="carrier"><option {% if order.carrier == "GHN" %}selected{% endif %}>GHN</option><option {% if order.carrier == "GHTK" %}selected{% endif %}>GHTK</option><option {% if order.carrier == "Ahamove" %}selected{% endif %}>Ahamove</option><option {% if order.carrier == "Viettel Post" %}selected{% endif %}>Viettel Post</option><option {% if order.carrier == "Tại cửa hàng" %}selected{% endif %}>Tại cửa hàng</option></select></div>
+        <div class="field"><label for="trk">Mã vận đơn</label><input id="trk" name="tracking_number" value="{{ order.tracking_number }}"></div>
+        <button class="btn btn-ghost btn-block">Lưu vận đơn</button>
+      </form>
+    </section>
+    <section class="panel"><h2>Khách hàng</h2>
+      <p style="margin:0"><b>{{ order.full_name }}</b> · <a href="tel:{{ order.phone }}">{{ order.phone }}</a><br>{{ order.email }}<br><span class="small muted">{{ order.address_line }}</span></p>
+      {% if order.note %}<p class="small">Ghi chú: {{ order.note }}</p>{% endif %}
+      {% if order.want_vat_invoice %}<p class="small">Xuất VAT: {{ order.vat_company }} — MST {{ order.vat_tax_code }}</p>{% endif %}
+      <p class="small muted">{% if order.user %}Tài khoản: {{ order.user.username }} ({{ order.user.orders.count }} đơn){% else %}Khách vãng lai{% endif %}</p>
+    </section>
+  </div>
+</div>
+{% endblock %}

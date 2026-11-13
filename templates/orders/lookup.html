@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Tra cứu đơn hàng — LevelUp Gear{% endblock %}
+{% block content %}
+<div class="wrap"><div class="card auth-card">
+  <h1 style="font-size:1.5rem">Tra cứu đơn hàng</h1>
+  <p class="muted small">Nhập mã đơn (dạng LU…) và email hoặc số điện thoại đã dùng khi đặt hàng.</p>
+  <form method="post" novalidate>{% csrf_token %}
+    {% include "partials/field.html" with field=form.code %}{% include "partials/field.html" with field=form.contact %}
+    <button class="btn btn-primary btn-block">Tra cứu</button>
+  </form>
+</div></div>
+{% endblock %}

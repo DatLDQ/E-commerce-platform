@@ -1,0 +1,18 @@
+{% load shop %}<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>Hoá đơn {{ order.code }}</title>
+<style>body{font-family:system-ui,Arial;color:#111;max-width:760px;margin:30px auto;padding:0 16px;font-size:14px}h1{font-size:22px;margin:0}table{width:100%;border-collapse:collapse;margin:16px 0}th,td{border-bottom:1px solid #ddd;padding:8px;text-align:left}td.r,th.r{text-align:right}.head{display:flex;justify-content:space-between;gap:20px}.tot td{font-weight:bold;font-size:16px}.muted{color:#666}@media print{button{display:none}}</style></head>
+<body>
+<div class="head"><div><h1>PHIẾU GIAO HÀNG / HOÁ ĐƠN BÁN HÀNG</h1><div class="muted">Mã đơn {{ order.code }} · {{ order.created_at|date:"d/m/Y H:i" }}</div></div><button onclick="print()">In</button></div>
+<div class="head" style="margin-top:16px">
+  <div><b>{{ BUSINESS.legal_name }}</b><br>MST: {{ BUSINESS.tax_code }}<br>{{ BUSINESS.address }}<br>Hotline {{ BUSINESS.hotline }}</div>
+  <div><b>Người nhận:</b> {{ order.full_name }}<br>{{ order.phone }}<br>{{ order.address_line }}{% if order.want_vat_invoice %}<br><b>Xuất VAT:</b> {{ order.vat_company }} — MST {{ order.vat_tax_code }}{% endif %}</div>
+</div>
+<table><thead><tr><th>#</th><th>Sản phẩm</th><th>SKU</th><th class="r">Đơn giá</th><th class="r">SL</th><th class="r">Thành tiền</th></tr></thead>
+<tbody>{% for i in items %}<tr><td>{{ forloop.counter }}</td><td>{{ i.product_name }}</td><td>{{ i.sku }}</td><td class="r">{{ i.unit_price|vnd }}</td><td class="r">{{ i.quantity }}</td><td class="r">{{ i.line_total|vnd }}</td></tr>{% endfor %}
+<tr><td colspan="5" class="r">Tạm tính</td><td class="r">{{ order.subtotal|vnd }}</td></tr>
+<tr><td colspan="5" class="r">Giảm giá</td><td class="r">-{{ order.discount|vnd }}</td></tr>
+<tr><td colspan="5" class="r">Phí vận chuyển ({{ order.delivery_method.name }})</td><td class="r">{{ order.shipping_fee|vnd }}</td></tr>
+<tr class="tot"><td colspan="5" class="r">TỔNG CỘNG</td><td class="r">{{ order.total|vnd }}</td></tr>
+<tr><td colspan="5" class="r muted">Trong đó thuế GTGT 10%</td><td class="r muted">{{ order.vat_amount|vnd }}</td></tr></tbody></table>
+<p>Thanh toán: {{ order.get_payment_method_display }} — <b>{{ order.get_payment_status_display }}</b>{% if order.payment_method == "cod" and order.payment_status != "paid" %} · <b>Thu hộ: {{ order.total|vnd }}</b>{% endif %}</p>
+<p class="muted">Khách hàng được kiểm tra hàng trước khi nhận. Đổi trả trong 7 ngày nếu lỗi nhà sản xuất.</p>
+</body></html>

@@ -1,0 +1,12 @@
+{% load shop %}
+<div class="table-wrap"><table class="table">
+  <thead><tr><th>Sản phẩm</th><th>Đơn giá</th><th>SL</th><th style="text-align:right">Thành tiền</th></tr></thead>
+  <tbody>{% for i in order.items.all %}<tr><td>{% if i.product %}<a href="{{ i.product.get_absolute_url }}">{{ i.product_name }}</a>{% else %}{{ i.product_name }}{% endif %}<div class="small muted">SKU {{ i.sku }}</div></td><td>{{ i.unit_price|vnd }}</td><td>{{ i.quantity }}</td><td style="text-align:right">{{ i.line_total|vnd }}</td></tr>{% endfor %}</tbody>
+</table></div>
+<div style="max-width:360px;margin-left:auto">
+  <div class="summary-row"><span>Tạm tính</span><span>{{ order.subtotal|vnd }}</span></div>
+  {% if order.discount %}<div class="summary-row"><span>Giảm giá{% if order.coupon %} ({{ order.coupon.code }}){% endif %}</span><span style="color:var(--success)">-{{ order.discount|vnd }}</span></div>{% endif %}
+  <div class="summary-row"><span>Phí vận chuyển ({{ order.delivery_method.name }})</span><span>{% if order.shipping_fee %}{{ order.shipping_fee|vnd }}{% else %}Miễn phí{% endif %}</span></div>
+  <div class="summary-row summary-total"><span>Tổng cộng</span><span class="price">{{ order.total|vnd }}</span></div>
+  <div class="summary-row small muted"><span>Trong đó VAT (10%)</span><span>{{ order.vat_amount|vnd }}</span></div>
+</div>

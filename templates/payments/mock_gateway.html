@@ -1,0 +1,31 @@
+{% extends "base.html" %}{% load shop %}
+{% block title %}Cổng thanh toán (mô phỏng){% endblock %}
+{% block content %}
+<div class="wrap"><div class="card gateway">
+  <div class="gateway-head">
+    <span class="gateway-brand {{ payment.provider }}">{% if payment.provider == "momo" %}MoMo{% else %}VNPAY{% endif %} <span class="muted small" style="font-family:var(--font)">Sandbox</span></span>
+    <span class="pill"><svg class="icon icon-sm"><use href="#i-lock"/></svg>Bảo mật</span>
+  </div>
+  <div class="sim-note"><b>Môi trường mô phỏng.</b> Trang này giả lập cổng thanh toán để demo luồng: chuyển hướng có chữ ký → xác thực → IPN → trang kết quả. Không nhập thông tin thẻ thật. Đặt <code>PAYMENT_MODE=vnpay</code> và khoá sandbox để dùng VNPay thật.</div>
+  <div class="summary-row"><span>Đơn vị nhận</span><b>LevelUp Gear</b></div>
+  <div class="summary-row"><span>Mã giao dịch</span><span>{{ payment.txn_ref }}</span></div>
+  <div class="summary-row"><span>Nội dung</span><span>Thanh toán đơn {{ order.code }}</span></div>
+  <div class="summary-row summary-total"><span>Số tiền</span><span class="price">{{ amount|vnd }}</span></div>
+  {% if payment.provider == "momo" %}
+    <p class="muted small" style="text-align:center">Mở ứng dụng MoMo và quét mã để thanh toán (mô phỏng)</p>
+  {% else %}
+    <div class="form-grid" style="margin-top:10px">
+      <div class="field"><label for="bank">Ngân hàng</label><select id="bank">{% for code, name in banks %}<option value="{{ code }}">{{ name }}</option>{% endfor %}</select></div>
+      <div class="field"><label for="cardno">Số thẻ / số tài khoản (thẻ test)</label><input type="text" id="cardno" value="{{ test_card }}" readonly inputmode="numeric" autocomplete="off"></div>
+      <div class="field"><label for="holder">Chủ thẻ</label><input type="text" id="holder" value="NGUYEN VAN A" readonly autocomplete="off"></div>
+    </div>
+    <p class="small muted" style="margin:0">Môi trường mô phỏng chỉ dùng thẻ test, chọn ngân hàng nào cũng được.</p>
+  {% endif %}
+  <form method="post" action="{{ request.get_full_path }}" style="display:grid;gap:8px;margin-top:14px">
+    {% csrf_token %}
+    <button class="btn btn-primary btn-lg" name="outcome" value="success">Xác nhận thanh toán thành công</button>
+    <button class="btn btn-ghost" name="outcome" value="fail">Mô phỏng: tài khoản không đủ số dư</button>
+    <button class="btn btn-ghost" name="outcome" value="cancel">Huỷ giao dịch</button>
+  </form>
+</div></div>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "base.html" %}{% load shop %}
+{% block title %}Đơn hàng của tôi — LevelUp Gear{% endblock %}
+{% block content %}
+<div class="wrap section"><div class="account">
+  {% include "accounts/_nav.html" %}
+  <div class="card">
+    <h1 style="font-size:1.4rem">Đơn hàng của tôi</h1>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">
+      <a class="pill {% if not current %}pill-primary{% endif %}" href="?">Tất cả</a>
+      {% for v, l in statuses %}<a class="pill {% if current == v %}pill-primary{% endif %}" href="?status={{ v }}">{{ l }}</a>{% endfor %}
+    </div>
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>Mã đơn</th><th>Ngày</th><th>Sản phẩm</th><th>Tổng</th><th>Trạng thái</th></tr></thead>
+      <tbody>{% for o in orders %}<tr><td><a href="{% url 'orders:detail' o.code %}"><b>{{ o.code }}</b></a></td><td>{{ o.created_at|date:"d/m/Y" }}</td><td class="small">{% for i in o.items.all|slice:":2" %}{{ i.product_name }} ×{{ i.quantity }}<br>{% endfor %}{% if o.items.all|length > 2 %}<span class="muted">+{{ o.items.all|length|add:"-2" }} sản phẩm</span>{% endif %}</td><td class="price">{{ o.total|vnd }}</td><td><span class="pill">{{ o.get_status_display }}</span></td></tr>
+      {% empty %}<tr><td colspan="5" class="muted">Chưa có đơn hàng.</td></tr>{% endfor %}</tbody>
+    </table></div>
+  </div>
+</div></div>
+{% endblock %}

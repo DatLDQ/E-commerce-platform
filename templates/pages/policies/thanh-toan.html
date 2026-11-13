@@ -1,0 +1,11 @@
+{% extends "pages/policies/_base.html" %}
+{% block policy %}
+<ul>
+  <li><b>COD:</b> thanh toán tiền mặt khi nhận hàng, được kiểm tra hàng trước.</li>
+  <li><b>VNPay:</b> thẻ ATM nội địa, Visa/Master/JCB, QR ngân hàng. Bạn được chuyển sang cổng VNPay để nhập thông tin thẻ; LevelUp Gear không lưu trữ thông tin thẻ.</li>
+  <li><b>Ví MoMo</b>.</li>
+  <li><b>Chuyển khoản VietQR:</b> quét mã QR hiển thị sau khi đặt hàng, nội dung chuyển khoản là mã đơn. Đơn được xác nhận khi nhân viên đối soát giao dịch.</li>
+</ul>
+<p>Kết quả thanh toán online được xác thực bằng chữ ký số HMAC-SHA512 trên cả URL trả về và thông báo IPN từ cổng thanh toán, chống giả mạo kết quả.</p>
+<p>Hoá đơn điện tử VAT được xuất theo yêu cầu khi đặt hàng (nhập tên công ty và mã số thuế).</p>
+{% endblock %}

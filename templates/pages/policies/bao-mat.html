@@ -1,0 +1,27 @@
+{% extends "pages/policies/_base.html" %}
+{% block policy %}
+<p>Chính sách được xây dựng theo <b>Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15</b> (hiệu lực từ 01/01/2026) và Nghị định 356/2025/NĐ-CP hướng dẫn thi hành.</p>
+<h2>1. Dữ liệu chúng tôi thu thập</h2>
+<ul>
+  <li><b>Dữ liệu tài khoản:</b> họ tên, email, số điện thoại, gamer tag (tuỳ chọn), thể loại game yêu thích (tuỳ chọn).</li>
+  <li><b>Dữ liệu giao dịch:</b> địa chỉ nhận hàng, sản phẩm đã mua, giá trị đơn hàng, phương thức thanh toán. <b>Chúng tôi không lưu số thẻ</b> — thông tin thẻ chỉ được nhập trên trang của cổng thanh toán.</li>
+  <li><b>Dữ liệu hành vi:</b> sản phẩm đã xem, từ khoá tìm kiếm, tin nhắn với chatbot — dùng để gợi ý sản phẩm phù hợp.</li>
+</ul>
+<h2>2. Mục đích xử lý</h2>
+<p>Xử lý đơn hàng và giao hàng; chăm sóc khách hàng, bảo hành; gợi ý sản phẩm cá nhân hoá; gửi email ưu đãi (<b>chỉ khi bạn đồng ý</b>); phòng chống gian lận; thực hiện nghĩa vụ kế toán, thuế.</p>
+<h2>3. Quyền của chủ thể dữ liệu</h2>
+<p>Bạn có quyền được biết, đồng ý hoặc rút lại sự đồng ý, truy cập, chỉnh sửa, yêu cầu xoá, hạn chế xử lý, phản đối xử lý và khiếu nại. Trên website, bạn có thể tự:</p>
+<ul>
+  <li>Chỉnh sửa thông tin tại <a href="{% url 'accounts:profile' %}">Hồ sơ</a>, tắt nhận email ưu đãi bất kỳ lúc nào.</li>
+  <li><a href="{% url 'accounts:privacy' %}">Tải về toàn bộ dữ liệu</a> của bạn (định dạng JSON).</li>
+  <li>Yêu cầu xoá tài khoản — dữ liệu cá nhân được ẩn danh ngay; chứng từ đơn hàng được lưu trữ ẩn danh theo thời hạn của pháp luật kế toán.</li>
+</ul>
+<h2>4. Bảo mật</h2>
+<p>Kết nối mã hoá HTTPS; mật khẩu băm bằng PBKDF2-SHA256; chống CSRF, XSS, clickjacking; giới hạn đăng nhập sai; phân quyền nhân viên; kết quả thanh toán được xác thực bằng chữ ký HMAC-SHA512. Chúng tôi <b>không mua bán dữ liệu cá nhân</b>.</p>
+<h2>5. Chia sẻ dữ liệu</h2>
+<p>Chỉ chia sẻ phần cần thiết với đơn vị vận chuyển (tên, SĐT, địa chỉ) và cổng thanh toán (mã đơn, số tiền). Không chia sẻ cho bên thứ ba vì mục đích quảng cáo.</p>
+<h2>6. Cookie</h2>
+<p>Cookie cần thiết (phiên đăng nhập, giỏ hàng, chống CSRF) luôn được dùng. Cookie phân tích chỉ dùng khi bạn đồng ý trên banner cookie.</p>
+<h2>7. Thời gian lưu trữ & liên hệ</h2>
+<p>Dữ liệu tài khoản lưu đến khi bạn xoá tài khoản; dữ liệu hành vi tối đa 24 tháng. Liên hệ bộ phận bảo vệ dữ liệu: {{ BUSINESS.email }}.</p>
+{% endblock %}

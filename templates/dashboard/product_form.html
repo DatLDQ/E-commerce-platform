@@ -1,0 +1,36 @@
+{% extends "dashboard/base_dash.html" %}
+{% block title %}{% if product %}Sửa {{ product.name }}{% else %}Thêm sản phẩm{% endif %}{% endblock %}
+{% block content %}
+<div class="dash-head"><h1>{% if product %}Sửa sản phẩm{% else %}Thêm sản phẩm{% endif %}</h1>{% if product %}<a class="btn btn-ghost" href="{{ product.get_absolute_url }}" target="_blank">Xem trên cửa hàng ↗</a>{% endif %}</div>
+<form method="post" enctype="multipart/form-data" novalidate>
+  {% csrf_token %}
+  <div class="panels cols-2">
+    <div class="panel">
+      <div class="form-grid two">
+        {% include "partials/field.html" with field=form.name class="span-2" %}
+        {% include "partials/field.html" with field=form.sku %}
+        {% include "partials/field.html" with field=form.tags %}
+        {% include "partials/field.html" with field=form.category %}
+        {% include "partials/field.html" with field=form.brand %}
+        {% include "partials/field.html" with field=form.short_description class="span-2" %}
+        {% include "partials/field.html" with field=form.description class="span-2" %}
+        {% include "partials/field.html" with field=form.specs_text class="span-2" %}
+      </div>
+    </div>
+    <div class="grid" style="gap:16px;align-content:start">
+      <div class="panel"><h2>Giá & tồn kho</h2>
+        {% include "partials/field.html" with field=form.price %}{% include "partials/field.html" with field=form.sale_price %}{% include "partials/field.html" with field=form.cost_price %}
+        <div class="form-grid two">{% include "partials/field.html" with field=form.stock %}{% include "partials/field.html" with field=form.warranty_months %}</div>
+        {% include "partials/field.html" with field=form.weight_grams %}
+        {% include "partials/field.html" with field=form.is_active %}{% include "partials/field.html" with field=form.is_featured %}
+      </div>
+      <div class="panel"><h2>Hình ảnh</h2>
+        {% if product %}<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">{% for img in product.images.all %}<div style="text-align:center"><img class="thumb" style="width:72px;height:72px" src="{{ img.image.url }}" alt=""><button class="btn btn-sm btn-danger" form="del-{{ img.pk }}" style="margin-top:4px">Xoá</button></div>{% endfor %}</div>{% endif %}
+        {% include "partials/field.html" with field=form.new_images %}
+      </div>
+      <button class="btn btn-primary btn-lg">Lưu sản phẩm</button>
+    </div>
+  </div>
+</form>
+{% if product %}{% for img in product.images.all %}<form id="del-{{ img.pk }}" method="post" action="{% url 'dashboard:image_delete' img.pk %}">{% csrf_token %}</form>{% endfor %}{% endif %}
+{% endblock %}

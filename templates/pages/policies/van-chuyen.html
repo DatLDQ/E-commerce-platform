@@ -1,0 +1,13 @@
+{% extends "pages/policies/_base.html" %}
+{% block policy %}
+<table class="table">
+  <thead><tr><th>Hình thức</th><th>Khu vực</th><th>Thời gian</th><th>Phí</th></tr></thead>
+  <tbody>
+    <tr><td>Giao tiêu chuẩn</td><td>Toàn quốc</td><td>2–4 ngày (nội thành 1–2 ngày)</td><td>30.000₫ + 5.000₫/kg vượt 2kg; +10.000₫ ngoài TP.HCM</td></tr>
+    <tr><td>Giao nhanh 2H</td><td>TP.HCM, Hà Nội</td><td>Trong ngày</td><td>45.000₫</td></tr>
+    <tr><td>Nhận tại cửa hàng</td><td>Showroom Q.10</td><td>2 giờ sau xác nhận</td><td>Miễn phí</td></tr>
+  </tbody>
+</table>
+<p><b>Miễn phí giao tiêu chuẩn</b> cho đơn từ {{ FREE_SHIP|floatformat:0 }}₫. Phí vận chuyển luôn hiển thị trước khi khách xác nhận đơn.</p>
+<p>Khách được <b>kiểm tra hàng trước khi thanh toán</b> (với đơn COD). Đơn vị vận chuyển đối tác: GHN, GHTK, Ahamove (giao nhanh). Mã vận đơn được gửi qua email và hiển thị tại trang đơn hàng.</p>
+{% endblock %}

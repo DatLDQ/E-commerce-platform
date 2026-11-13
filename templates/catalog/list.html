@@ -1,0 +1,85 @@
+{% extends "base.html" %}{% load shop %}
+{% block title %}{% if q %}Tìm “{{ q }}”{% elif category %}{{ category.name }}{% else %}Tất cả sản phẩm{% endif %} — LevelUp Gear{% endblock %}
+{% block content %}
+<div class="wrap">
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">Trang chủ</a> / <a href="{% url 'catalog:list' %}">Sản phẩm</a>{% if category %} / <span>{{ category.name }}</span>{% endif %}</nav>
+  <div class="listing">
+    <aside class="filters" aria-label="Bộ lọc">
+      <form method="get" data-auto-submit>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <h2 style="font-size:1.1rem;margin:0">Bộ lọc</h2>
+          <button type="button" class="icon-btn filters-close" data-filters-toggle aria-label="Đóng bộ lọc"><svg class="icon"><use href="#i-close"/></svg></button>
+        </div>
+        {% if q %}<input type="hidden" name="q" value="{{ q }}">{% endif %}
+        {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
+        {# brand / tag come from links (product page, home tiles); they show as chips above the grid #}
+        {% for b in active_brands %}<input type="hidden" name="brand" value="{{ b.slug }}">{% endfor %}
+        {% if active_tag %}<input type="hidden" name="tag" value="{{ active_tag.0 }}">{% endif %}
+        <nav class="filter-group" aria-labelledby="cat-filter-h"><h3 id="cat-filter-h">Danh mục</h3>
+          {# switching category keeps price / stock / sale / rating / sort / search, drops brand and tag #}
+          <div class="cat-filter">
+            <a href="{% url 'catalog:list' %}{% query_replace brand='' tag='' %}"{% if not category %} class="active" aria-current="page"{% endif %}><svg class="icon icon-sm"><use href="#i-box"/></svg>Tất cả sản phẩm</a>
+            {% for c in nav_categories %}<a href="{{ c.get_absolute_url }}{% query_replace brand='' tag='' %}"{% if category.pk == c.pk %} class="active" aria-current="page"{% endif %}><svg class="icon icon-sm"><use href="#i-{{ c.icon }}"/></svg>{{ c.name }}</a>{% endfor %}
+          </div>
+        </nav>
+        <fieldset class="filter-group" style="border:0;border-bottom:1px solid var(--border);margin:0;padding:14px 0"><legend><h3 style="margin:0">Khoảng giá</h3></legend>
+          <label class="check"><input type="radio" name="price" value="" {% if not request.GET.price %}checked{% endif %}> Tất cả</label>
+          {% for v, l in price_ranges %}<label class="check"><input type="radio" name="price" value="{{ v }}" {% if request.GET.price == v %}checked{% endif %}> {{ l }}</label>{% endfor %}
+        </fieldset>
+        <div class="filter-group">
+          <label class="check"><input type="checkbox" name="in_stock" value="1" {% if request.GET.in_stock %}checked{% endif %}> Chỉ hàng còn sẵn</label>
+          <label class="check"><input type="checkbox" name="on_sale" value="1" {% if request.GET.on_sale %}checked{% endif %}> Đang giảm giá</label>
+          <label class="check"><input type="checkbox" name="rating" value="4" {% if request.GET.rating %}checked{% endif %}> Từ 4★ trở lên</label>
+        </div>
+        {# every control applies itself on change (main.js); the button is only for browsers without JavaScript #}
+        <noscript><button class="btn btn-primary btn-block" style="margin-top:14px">Lọc</button></noscript>
+      </form>
+    </aside>
+
+    <section aria-labelledby="list-h">
+      <div class="toolbar">
+        <div>
+          <h1 id="list-h" style="margin:0;font-size:1.5rem">{% if q %}Kết quả cho “{{ q }}”{% elif category %}{{ category.name }}{% else %}Tất cả sản phẩm{% endif %}</h1>
+          <span class="muted small">{{ page.paginator.count }} sản phẩm{% if groups %} trong {{ groups|length }} danh mục{% endif %}</span>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost filters-toggle" data-filters-toggle><svg class="icon icon-sm"><use href="#i-filter"/></svg>Lọc</button>
+          <form method="get" data-auto-submit>
+            {% for k, vs in request.GET.lists %}{% if k != "sort" and k != "page" %}{% for v in vs %}<input type="hidden" name="{{ k }}" value="{{ v }}">{% endfor %}{% endif %}{% endfor %}
+            <label class="sr-only" for="sort">Sắp xếp</label>
+            <select id="sort" name="sort" onchange="this.form.submit()">
+              {% if q %}<option value="" {% if not sort %}selected{% endif %}>Liên quan nhất</option>{% endif %}
+              {% for k, l in sorts %}<option value="{{ k }}" {% if sort == k %}selected{% endif %}>{{ l }}</option>{% endfor %}
+            </select>
+          </form>
+        </div>
+      </div>
+      {% if category.description and not q %}<p class="muted">{{ category.description }}</p>{% endif %}
+      {% if active_brands or active_tag %}
+      <div class="filter-chips" aria-label="Đang lọc">
+        {% if active_brands %}<a class="pill" href="{% query_replace brand='' %}" aria-label="Bỏ lọc thương hiệu">Thương hiệu: {{ active_brands|join:", " }}<svg class="icon icon-sm" aria-hidden="true"><use href="#i-close"/></svg></a>{% endif %}
+        {% if active_tag %}<a class="pill" href="{% query_replace tag='' %}" aria-label="Bỏ lọc {{ active_tag.1 }}">{{ active_tag.1 }}<svg class="icon icon-sm" aria-hidden="true"><use href="#i-close"/></svg></a>{% endif %}
+      </div>
+      {% endif %}
+      {% if groups %}
+        {# a search over the whole shop: one row per category, its first products and a link to the rest #}
+        {% for g in groups %}
+        <section class="search-group" aria-labelledby="sg-{{ g.category.slug }}">
+          <div class="section-head">
+            <h2 id="sg-{{ g.category.slug }}">{{ g.category.name }} <span class="search-group-count">{{ g.count }}</span></h2>
+            {% if g.more %}<a class="section-more" href="{{ g.category.get_absolute_url }}{% query_replace %}">Xem thêm {{ g.more }} sản phẩm <svg class="icon icon-sm"><use href="#i-chevron"/></svg></a>{% endif %}
+          </div>
+          <div class="scroller search-row">{% for p in g.products %}{% include "partials/product_card.html" %}{% endfor %}</div>
+        </section>
+        {% endfor %}
+      {% elif page.object_list %}
+        <div class="products-grid">{% for p in page %}{% include "partials/product_card.html" %}{% endfor %}</div>
+        {% include "partials/pagination.html" %}
+      {% else %}
+        <div class="empty card"><svg class="icon"><use href="#i-search"/></svg><h2>Không tìm thấy sản phẩm phù hợp</h2><p class="muted">Thử từ khoá khác, bỏ bớt bộ lọc, hoặc hỏi LevelBot để được tư vấn.</p></div>
+        {% include "partials/product_row.html" with title="Có thể bạn quan tâm" products=suggestions %}
+      {% endif %}
+    </section>
+  </div>
+</div>
+{% endblock %}

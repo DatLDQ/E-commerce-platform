@@ -1,0 +1,109 @@
+{% extends "dashboard/base_dash.html" %}{% load shop static %}
+{% block title %}Tổng quan{% endblock %}
+{% block content %}
+<div class="dash-head">
+  <div><h1>Tổng quan kinh doanh</h1><span class="muted small">So sánh với {{ days }} ngày liền trước</span></div>
+  <div class="seg" role="tablist">{% for d, l in periods %}<a href="?days={{ d }}" {% if d == days %}class="active"{% endif %}>{{ l }}</a>{% endfor %}</div>
+</div>
+
+{% if k.pending or k.awaiting_payment or low_stock %}
+<div style="margin-bottom:14px">
+  {% if k.pending %}<a class="alert-row" href="{% url 'dashboard:orders' %}?status=pending"><svg class="icon"><use href="#i-box"/></svg>{{ k.pending }} đơn đang chờ xác nhận</a>{% endif %}
+  {% if k.awaiting_payment %}<a class="alert-row" href="{% url 'dashboard:orders' %}?payment_method=bank&payment_status=unpaid"><svg class="icon"><use href="#i-card"/></svg>{{ k.awaiting_payment }} đơn chuyển khoản cần đối soát</a>{% endif %}
+  {% if low_stock %}<a class="alert-row" href="{% url 'dashboard:products' %}?status=low"><svg class="icon"><use href="#i-bolt"/></svg>{{ low_stock|length }} sản phẩm sắp hết hàng</a>{% endif %}
+</div>
+{% endif %}
+
+<div class="kpis">
+  {% include "dashboard/_kpi.html" with label="Doanh thu" value=k.revenue|vnd delta=k.revenue_growth unit="%" %}
+  {% include "dashboard/_kpi.html" with label="Đơn hàng" value=k.orders delta=k.orders_growth unit="%" %}
+  {% include "dashboard/_kpi.html" with label="Giá trị đơn TB (AOV)" value=k.aov|vnd %}
+  {% include "dashboard/_kpi.html" with label="Lợi nhuận gộp" value=k.profit|vnd note=k.margin_note %}
+  {% include "dashboard/_kpi.html" with label="Lượt truy cập" value=k.visits %}
+  {% include "dashboard/_kpi.html" with label="Tỷ lệ chuyển đổi" value=k.conversion_label delta=k.conversion_delta unit=" điểm" %}
+  {% include "dashboard/_kpi.html" with label="Khách hàng mới" value=k.new_users delta=k.new_users_growth unit="%" %}
+  {% include "dashboard/_kpi.html" with label="Tỷ lệ giữ chân" value=k.retention_label note=k.retention_note %}
+</div>
+
+<div class="panels cols-2">
+  <section class="panel"><h2>Doanh thu & đơn hàng theo ngày <span class="muted small">({{ daily_days }} ngày gần nhất)</span></h2><div class="chart-box"><canvas id="c-daily" aria-label="Biểu đồ doanh thu theo ngày" role="img"></canvas></div></section>
+  <section class="panel"><h2>Doanh thu theo danh mục <span class="muted small">(tiền hàng, {{ days }} ngày)</span></h2><div class="chart-box"><canvas id="c-cat" role="img" aria-label="Doanh thu theo danh mục"></canvas></div></section>
+</div>
+<div class="panels cols-2" style="margin-top:16px">
+  <section class="panel"><h2>6 tháng gần nhất — người dùng & doanh thu</h2><div class="chart-box"><canvas id="c-monthly" role="img" aria-label="Người dùng hoạt động và doanh thu theo tháng"></canvas></div></section>
+  <section class="panel"><h2>Phương thức thanh toán</h2><div class="chart-box sm"><canvas id="c-pay" role="img" aria-label="Tỷ trọng phương thức thanh toán"></canvas></div></section>
+</div>
+
+<div class="panels cols-3" style="margin-top:16px">
+  <section class="panel"><h2>Sản phẩm bán chạy</h2>
+    <ul class="mini-list">{% for p in top_products %}<li><span>{{ forloop.counter }}. {{ p.product_name|truncatechars:34 }} <span class="muted">×{{ p.qty }}</span></span><b>{{ p.revenue|vnd }}</b></li>{% empty %}<li class="muted">Chưa có dữ liệu</li>{% endfor %}</ul>
+  </section>
+  <section class="panel"><h2>Nguồn truy cập & khu vực</h2>
+    <ul class="mini-list">{% for s in br.sources %}<li><span>{{ s.label }}</span><b>{{ s.n }}</b></li>{% endfor %}</ul>
+    <h2 style="margin-top:14px">Tỉnh/thành mua nhiều</h2>
+    <ul class="mini-list">{% for p in br.provinces %}<li><span>{{ p.province }} <span class="muted">({{ p.n }} đơn)</span></span><b>{{ p.rev|vnd }}</b></li>{% endfor %}</ul>
+  </section>
+  <section class="panel"><h2>Trạng thái đơn</h2><div class="chart-box sm"><canvas id="c-status" role="img" aria-label="Phân bố trạng thái đơn"></canvas></div></section>
+</div>
+
+<div class="panels cols-3" style="margin-top:16px">
+  <section class="panel"><h2>Từ khoá tìm kiếm hàng đầu</h2>
+    <ul class="mini-list">{% for s in search.top %}<li><span>{{ s.query }}</span><b>{{ s.n }}</b></li>{% empty %}<li class="muted">Chưa có</li>{% endfor %}</ul>
+    <h2 style="margin-top:14px">Tìm không ra kết quả <span class="muted small">(cơ hội nhập hàng)</span></h2>
+    <ul class="mini-list">{% for s in search.zero %}<li><span>{{ s.query }}</span><b>{{ s.n }}</b></li>{% empty %}<li class="muted">Không có</li>{% endfor %}</ul>
+  </section>
+  <section class="panel"><h2>Chatbot LevelBot</h2>
+    <div class="summary-row"><span>Tin nhắn / phiên chat</span><b>{{ chat.total }} / {{ chat.sessions }}</b></div>
+    <div class="summary-row"><span>Tỷ lệ tự trả lời được</span><b>{{ chat.resolved_rate }}%</b></div>
+    <ul class="mini-list" style="margin-top:8px">{% for i in chat.intents %}<li><span>{{ i.intent }}</span><b>{{ i.n }}</b></li>{% endfor %}</ul>
+    {% if chat.unanswered %}<h2 style="margin-top:14px">Câu hỏi bot chưa hiểu</h2><ul class="mini-list">{% for t in chat.unanswered %}<li class="small">“{{ t|truncatechars:60 }}”</li>{% endfor %}</ul>{% endif %}
+  </section>
+  <section class="panel"><h2>Tồn kho thấp</h2>
+    <ul class="mini-list">{% for p in low_stock %}<li><a href="{% url 'dashboard:product_edit' p.pk %}">{{ p.name|truncatechars:34 }}</a><b class="{% if p.stock == 0 %}down{% else %}stock-low{% endif %}">{{ p.stock }}</b></li>{% empty %}<li class="muted">Tồn kho ổn định</li>{% endfor %}</ul>
+  </section>
+</div>
+
+<section class="panel" style="margin-top:16px"><h2>Đơn hàng mới nhất</h2>{% include "dashboard/_orders_table.html" with orders=recent_orders %}</section>
+{{ chart_data|json_script:"chart-data" }}
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'vendor/chart.umd.min.js' %}"></script>
+<script>
+(function () {
+  if (!window.Chart) return;
+  const D = JSON.parse(document.getElementById("chart-data").textContent);
+  const css = getComputedStyle(document.documentElement);
+  const c = (v) => css.getPropertyValue(v).trim();
+  const palette = [c("--primary"), c("--accent"), "#40d4ff", "#ff8a4c", c("--danger"), "#f472b6", "#94a3b8", "#facc15"];
+  Chart.defaults.color = c("--muted");
+  Chart.defaults.borderColor = c("--border");
+  Chart.defaults.font.family = c("--font");
+  const money = (v) => new Intl.NumberFormat("vi-VN", { notation: "compact" }).format(v) + "₫";
+  // axis name + unit, at the end of the axis (top of a vertical one, right end of a horizontal one)
+  const axis = (text) => ({ display: true, text, align: "end", color: c("--muted"), font: { size: 11, weight: "600" }, padding: { top: 2, bottom: 2 } });
+  new Chart(document.getElementById("c-daily"), {
+    data: { labels: D.daily.labels, datasets: [
+      { type: "bar", label: "Doanh thu", data: D.daily.revenue, backgroundColor: c("--primary"), borderRadius: 4, yAxisID: "y" },
+      { type: "line", label: "Số đơn", data: D.daily.orders, borderColor: c("--accent"), backgroundColor: c("--accent"), tension: .35, yAxisID: "y1", pointRadius: 2 } ] },
+    options: { maintainAspectRatio: false, interaction: { mode: "index", intersect: false },
+      scales: { x: { title: axis("Ngày (dd/mm)") },
+                y: { title: axis("Doanh thu (₫)"), ticks: { callback: money } },
+                y1: { position: "right", title: axis("Số đơn (đơn)"), grid: { drawOnChartArea: false }, ticks: { precision: 0 } } },
+      plugins: { tooltip: { callbacks: { label: (x) => x.dataset.label + ": " + (x.dataset.yAxisID === "y" ? new Intl.NumberFormat("vi-VN").format(x.raw) + "₫" : x.raw) } } } } });
+  new Chart(document.getElementById("c-monthly"), {
+    data: { labels: D.monthly.labels, datasets: [
+      { type: "line", label: "Người dùng hoạt động (MAU)", data: D.monthly.active_users, borderColor: c("--accent"), tension: .3, yAxisID: "y1" },
+      { type: "line", label: "Khách hàng mới", data: D.monthly.new_users, borderColor: "#40d4ff", tension: .3, yAxisID: "y1" },
+      { type: "bar", label: "Doanh thu", data: D.monthly.revenue, backgroundColor: c("--primary"), borderRadius: 4, yAxisID: "y" } ] },
+    options: { maintainAspectRatio: false, interaction: { mode: "index", intersect: false },
+      scales: { x: { title: axis("Tháng (mm/yyyy)") },
+                y: { title: axis("Doanh thu (₫)"), ticks: { callback: money } },
+                y1: { position: "right", title: axis("Người dùng (người)"), grid: { drawOnChartArea: false }, ticks: { precision: 0 } } },
+      plugins: { tooltip: { callbacks: { label: (x) => x.dataset.label + ": " + new Intl.NumberFormat("vi-VN").format(x.raw) + (x.dataset.yAxisID === "y" ? "₫" : " người") } } } } });
+  const doughnut = (id, d) => new Chart(document.getElementById(id), { type: "doughnut", data: { labels: d.labels, datasets: [{ data: d.values, backgroundColor: palette, borderWidth: 0 }] }, options: { maintainAspectRatio: false, cutout: "62%", plugins: { legend: { position: "bottom", labels: { boxWidth: 12 } } } } });
+  doughnut("c-pay", D.payment); doughnut("c-status", D.status);
+  new Chart(document.getElementById("c-cat"), { type: "bar", data: { labels: D.category.labels, datasets: [{ data: D.category.values, backgroundColor: palette, borderRadius: 4 }] }, options: { indexAxis: "y", maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: (x) => new Intl.NumberFormat("vi-VN").format(x.raw) + "₫" } } },
+    scales: { x: { title: axis("Doanh thu (₫)"), ticks: { callback: money } }, y: { title: axis("Danh mục") } } } });
+})();
+</script>
+{% endblock %}

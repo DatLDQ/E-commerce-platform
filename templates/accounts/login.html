@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Đăng nhập — LevelUp Gear{% endblock %}
+{% block content %}
+<div class="wrap"><div class="card auth-card">
+  <h1 style="font-size:1.5rem">Đăng nhập</h1>
+  <form method="post" novalidate>{% csrf_token %}
+    {% if form.non_field_errors %}<div class="errorlist" style="margin-bottom:10px">{{ form.non_field_errors }}</div>{% endif %}
+    {% include "partials/field.html" with field=form.username %}{% include "partials/field.html" with field=form.password %}
+    <input type="hidden" name="next" value="{{ next }}">
+    <button class="btn btn-primary btn-block">Đăng nhập</button>
+  </form>
+  <p class="small" style="margin-top:12px"><a href="{% url 'accounts:password_reset' %}">Quên mật khẩu?</a></p>
+  <p class="small muted">Chưa có tài khoản? <a href="{% url 'accounts:register' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Đăng ký ngay</a> — nhận mã WELCOME10 giảm 10%.</p>
+</div></div>
+{% endblock %}

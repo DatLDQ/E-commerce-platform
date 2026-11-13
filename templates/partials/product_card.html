@@ -1,0 +1,36 @@
+{% load shop %}
+{# Every row of the card has a fixed height, so cards line up whether or not a product has reviews, a sale price or a long name. #}
+<article class="pcard">
+  <a class="pcard-img" href="{{ p.get_absolute_url }}" tabindex="-1" aria-hidden="true">
+    {% with img=p.main_image %}{% if img %}<img src="{{ img.image.url }}" alt="{{ p.name }}" loading="lazy" width="400" height="400">{% endif %}{% endwith %}
+    <div class="pcard-badges">
+      {% if p.discount_percent %}<span class="pill pill-sale">-{{ p.discount_percent }}%</span>{% endif %}
+      {% if p.is_featured %}<span class="pill pill-hot">Hot</span>{% endif %}
+    </div>
+    {% if not p.in_stock %}<span class="pcard-soldout">Hết hàng</span>{% endif %}
+  </a>
+  <div class="pcard-body">
+    <div class="pcard-meta">
+      <span class="pcard-brand">{{ p.brand.name }}</span>
+      {% if p.avg_rating %}
+      <span class="pcard-rating" aria-label="Đánh giá {{ p.avg_rating|floatformat:1 }} trên 5, {{ p.review_count }} lượt"><svg class="icon"><use href="#i-star"/></svg>{{ p.avg_rating|floatformat:1 }}<span class="muted">({{ p.review_count }})</span></span>
+      {% else %}
+      <span class="pcard-rating is-new">Mới</span>
+      {% endif %}
+    </div>
+    <a class="pcard-name" href="{{ p.get_absolute_url }}" title="{{ p.name }}">{{ p.name }}</a>
+    <div class="pcard-price">
+      <span class="price">{{ p.current_price|vnd }}</span>
+      <span class="price-old"{% if not p.sale_price %} aria-hidden="true"{% endif %}>{% if p.sale_price %}{{ p.price|vnd }}{% endif %}</span>
+    </div>
+    <div class="pcard-foot">
+      {% if not p.in_stock %}<span class="stock-out">Tạm hết hàng</span>{% elif p.low_stock %}<span class="stock-low">Chỉ còn {{ p.stock }}</span>{% else %}<span class="pcard-sold">Đã bán {{ p.sold_count }}</span>{% endif %}
+      {% if p.in_stock %}
+      <form method="post" action="{% url 'cart:add' p.pk %}" data-add-to-cart>
+        {% csrf_token %}<input type="hidden" name="quantity" value="1"><input type="hidden" name="next" value="{{ request.get_full_path }}">
+        <button class="btn btn-primary pcard-cart" aria-label="Thêm {{ p.name }} vào giỏ"><svg class="icon icon-sm"><use href="#i-cart"/></svg></button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+</article>

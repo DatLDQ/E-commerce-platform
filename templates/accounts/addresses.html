@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Sổ địa chỉ — LevelUp Gear{% endblock %}
+{% block content %}
+<div class="wrap section"><div class="account">
+  {% include "accounts/_nav.html" %}
+  <div class="grid" style="gap:16px">
+    <div class="card">
+      <h1 style="font-size:1.4rem">Sổ địa chỉ</h1>
+      {% for a in addresses %}
+      <div style="display:flex;justify-content:space-between;gap:10px;padding:12px 0;border-bottom:1px solid var(--border);flex-wrap:wrap">
+        <div><b>{{ a.full_name }}</b> · {{ a.phone }} {% if a.is_default %}<span class="pill pill-primary">Mặc định</span>{% endif %}<div class="muted small">{{ a.one_line }}</div></div>
+        <div style="display:flex;gap:6px">
+          <a class="btn btn-sm btn-ghost" href="{% url 'accounts:address_edit' a.pk %}#address-form">Sửa</a>
+          {% if not a.is_default %}<form method="post" action="{% url 'accounts:address_default' a.pk %}">{% csrf_token %}<button class="btn btn-sm btn-ghost">Đặt mặc định</button></form>{% endif %}
+          <form method="post" action="{% url 'accounts:address_delete' a.pk %}">{% csrf_token %}<button class="btn btn-sm btn-danger">Xoá</button></form>
+        </div>
+      </div>
+      {% empty %}<p class="muted">Chưa có địa chỉ nào.</p>{% endfor %}
+    </div>
+    <div class="card" id="address-form"><h2 style="font-size:1.1rem">{% if editing %}Sửa địa chỉ{% else %}Thêm địa chỉ mới{% endif %}</h2>
+      <form method="post" novalidate>{% csrf_token %}<div class="form-grid two">{% for f in form %}{% include "partials/field.html" with field=f %}{% endfor %}</div>
+        <button class="btn btn-primary">{% if editing %}Lưu thay đổi{% else %}Thêm địa chỉ{% endif %}</button>{% if editing %} <a class="btn btn-ghost" href="{% url 'accounts:addresses' %}">Huỷ</a>{% endif %}</form>
+    </div>
+  </div>
+</div></div>
+{% endblock %}

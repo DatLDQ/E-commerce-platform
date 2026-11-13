@@ -1,0 +1,18 @@
+{% extends "base.html" %}{% load shop %}
+{% block title %}Đặt hàng thành công — LevelUp Gear{% endblock %}
+{% block content %}
+<div class="wrap section" style="max-width:820px">
+  <div class="steps"><span class="done"><b>✓</b>Giỏ hàng</span><span>›</span><span class="done"><b>✓</b>Thông tin & thanh toán</span><span>›</span><span class="done"><b>3</b>Hoàn tất</span></div>
+  <div class="card" style="text-align:center">
+    <svg class="icon" style="width:64px;height:64px;color:var(--success);margin:0 auto"><use href="#i-check"/></svg>
+    <h1>Đặt hàng thành công!</h1>
+    <p>Mã đơn hàng: <b style="font-size:1.2rem">{{ order.code }}</b></p>
+    <p class="muted">Email xác nhận đã được gửi tới {{ order.email }}. Nhân viên sẽ gọi xác nhận trong 30 phút (8:00–21:00).</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <a class="btn btn-primary" href="{{ order.get_absolute_url }}">Theo dõi đơn hàng</a>
+      <a class="btn btn-ghost" href="{% url 'catalog:list' %}">Tiếp tục mua sắm</a>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px">{% include "orders/_summary.html" %}</div>
+</div>
+{% endblock %}

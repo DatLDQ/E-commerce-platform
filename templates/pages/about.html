@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Về chúng tôi — LevelUp Gear{% endblock %}
+{% block content %}
+<div class="wrap section prose">
+  <h1>Về LevelUp Gear</h1>
+  <p>LevelUp Gear là cửa hàng thương mại điện tử B2C chuyên gaming gear chính hãng cho game thủ Việt Nam — từ học sinh, sinh viên mới bắt đầu đến tuyển thủ eSports bán chuyên.</p>
+  <h2>Chúng tôi giải quyết vấn đề gì?</h2>
+  <ul>
+    <li><b>Khó chọn đúng gear:</b> thông số kỹ thuật phức tạp, review rời rạc. LevelBot và hệ gợi ý AI tư vấn theo thể loại game và ngân sách.</li>
+    <li><b>Hàng giả, hàng xách tay không bảo hành:</b> 100% sản phẩm nhập từ nhà phân phối chính thức, có hoá đơn VAT.</li>
+    <li><b>Giao chậm:</b> giao nhanh 2 giờ nội thành TP.HCM, nhận tại showroom miễn phí.</li>
+  </ul>
+  <h2>Thông tin doanh nghiệp</h2>
+  <ul>
+    <li>Tên doanh nghiệp: {{ BUSINESS.legal_name }}</li>
+    <li>Mã số thuế: {{ BUSINESS.tax_code }}</li>
+    <li>Địa chỉ: {{ BUSINESS.address }}</li>
+    <li>Hotline: {{ BUSINESS.hotline }} — Email: {{ BUSINESS.email }}</li>
+    <li>Tình trạng: {{ BUSINESS.registration }}</li>
+  </ul>
+  <p class="muted small">Website được xây dựng cho đồ án môn Thương mại điện tử (CO3027), Trường ĐH Bách khoa — ĐHQG TP.HCM. Thông tin doanh nghiệp là dữ liệu mô phỏng.</p>
+</div>
+{% endblock %}

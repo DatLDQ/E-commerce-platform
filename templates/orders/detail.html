@@ -1,0 +1,63 @@
+{% extends "base.html" %}{% load shop %}
+{% block title %}Đơn hàng {{ order.code }} — LevelUp Gear{% endblock %}
+{% block content %}
+<div class="wrap section" style="max-width:960px">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+    <div><h1 style="margin:0">Đơn hàng {{ order.code }}</h1><span class="muted small">Đặt lúc {{ order.created_at|date:"H:i d/m/Y" }}</span></div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <span class="pill {% if order.status == 'cancelled' %}pill-danger{% elif order.status == 'completed' or order.status == 'delivered' %}pill-success{% else %}pill-primary{% endif %}">{{ order.get_status_display }}</span>
+      <span class="pill {% if order.payment_status == 'paid' %}pill-success{% elif order.payment_status == 'failed' %}pill-danger{% else %}pill-warning{% endif %}">{{ order.get_payment_status_display }}</span>
+    </div>
+  </div>
+
+  {% if order.status != "cancelled" and order.status != "returned" %}
+  <div class="tracker" aria-label="Tiến trình đơn hàng">{% for label, on in order.progress_steps %}<div class="{% if on %}on{% endif %}"><i>{% if on %}✓{% else %}{{ forloop.counter }}{% endif %}</i>{{ label }}</div>{% endfor %}</div>
+  {% endif %}
+
+  {% if order.needs_online_payment and order.status != "cancelled" %}
+  <div class="card" style="border-color:var(--warning);margin-bottom:16px">
+    <b>Đơn hàng chưa được thanh toán.</b> <span class="muted">Phương thức: {{ order.get_payment_method_display }}</span>
+    <form method="post" action="{% url 'payments:start' order.code %}" id="pay-form" style="margin-top:10px">{% csrf_token %}<button class="btn btn-primary"><svg class="icon"><use href="#i-card"/></svg>Thanh toán {{ order.total|vnd }}</button></form>
+    {% if auto_pay %}<p class="small muted" id="auto-pay-note">Đang chuyển tới cổng thanh toán…</p>
+    <script>document.addEventListener("DOMContentLoaded",()=>setTimeout(()=>document.getElementById("pay-form").submit(),900));</script>{% endif %}
+  </div>
+  {% endif %}
+
+  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));margin-bottom:16px">
+    <div class="card"><h3>Người nhận</h3><p style="margin:0">{{ order.full_name }} · {{ order.phone }}<br>{{ order.address_line }}<br><span class="muted small">{{ order.email }}</span></p>{% if order.note %}<p class="small muted">Ghi chú: {{ order.note }}</p>{% endif %}</div>
+    <div class="card"><h3>Giao hàng</h3><p style="margin:0">{{ order.delivery_method.name }} — {{ order.delivery_method.eta_label }}</p>{% if order.tracking_number %}<p class="small">Mã vận đơn: <b>{{ order.tracking_number }}</b> ({{ order.carrier }})</p>{% endif %}
+      <h3 style="margin-top:12px">Thanh toán</h3><p style="margin:0">{{ order.get_payment_method_display }}{% if order.paid_at %}<br><span class="small muted">Đã thanh toán lúc {{ order.paid_at|date:"H:i d/m/Y" }}</span>{% endif %}</p></div>
+  </div>
+
+  <div class="card" style="margin-bottom:16px">{% include "orders/_summary.html" %}</div>
+
+  {% if can_buy_again or received %}
+  <div class="card" style="margin-bottom:16px">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      {% if can_buy_again %}<form method="post" action="{% url 'orders:buy_again' order.code %}{% if not is_owner %}?t={{ order.access_token }}{% endif %}">{% csrf_token %}<button class="btn btn-primary" data-once><svg class="icon"><use href="#i-cart"/></svg>Mua lại</button></form>{% endif %}
+      {% if received %}<a class="btn btn-ghost" href="{% url 'pages:contact' %}?subject={{ 'Yêu cầu đổi trả đơn '|urlencode }}{{ order.code }}">Yêu cầu đổi trả</a>
+      <a class="small muted" href="{% url 'pages:policy' 'doi-tra' %}">Chính sách đổi trả</a>{% endif %}
+    </div>
+    {% if is_owner and received %}
+    <h3 style="margin-top:14px">Đánh giá sản phẩm</h3>
+    <ul style="margin:0;padding-left:18px">{% for i in items %}{% if i.product %}<li style="margin:4px 0">{{ i.product_name }} —
+      {% if i.can_review %}<a href="{{ i.product.get_absolute_url }}#reviews"><b>Viết đánh giá</b></a>{% else %}<a class="muted" href="{{ i.product.get_absolute_url }}#reviews">Đã đánh giá · xem / sửa</a>{% endif %}</li>{% endif %}{% endfor %}</ul>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <div class="card">
+    <h3>Lịch sử đơn hàng</h3>
+    <ul class="timeline">{% for h in order.history.all %}<li><b>{{ h.get_status_display }}</b> <span class="muted small">— {{ h.created_at|date:"H:i d/m/Y" }}</span>{% if h.note %}<div class="small muted">{{ h.note }}</div>{% endif %}</li>{% endfor %}</ul>
+    {% if order.can_cancel %}
+    <details><summary class="small" style="cursor:pointer;color:var(--danger)">Huỷ đơn hàng</summary>
+      <form method="post" action="{% url 'orders:cancel' order.code %}{% if not is_owner %}?t={{ order.access_token }}{% endif %}" style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+        {% csrf_token %}<label class="sr-only" for="reason">Lý do huỷ</label>
+        <select id="reason" name="reason" style="flex:1;min-width:200px"><option>Muốn đổi sản phẩm khác</option><option>Tìm được giá tốt hơn</option><option>Đặt nhầm</option><option>Thời gian giao quá lâu</option><option>Khác</option></select>
+        <button class="btn btn-danger" data-once>Xác nhận huỷ</button>
+      </form>
+    </details>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

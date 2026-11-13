@@ -1,0 +1,13 @@
+{% load shop %}
+<div class="table-wrap"><table class="table">
+  <thead><tr><th>Mã đơn</th><th>Ngày</th><th>Khách hàng</th><th>Tổng</th><th>Thanh toán</th><th>Giao hàng</th><th>Trạng thái</th></tr></thead>
+  <tbody>{% for o in orders %}<tr>
+    <td><a href="{% url 'dashboard:order_detail' o.code %}"><b>{{ o.code }}</b></a></td>
+    <td class="small">{{ o.created_at|date:"H:i d/m" }}</td>
+    <td>{{ o.full_name }}<div class="small muted">{{ o.province }}</div></td>
+    <td class="price">{{ o.total|vnd }}</td>
+    <td class="small">{{ o.get_payment_method_display|truncatechars:22 }}<br><span class="pill {% if o.payment_status == 'paid' %}pill-success{% elif o.payment_status == 'failed' %}pill-danger{% else %}pill-warning{% endif %}">{{ o.get_payment_status_display }}</span></td>
+    <td class="small">{{ o.delivery_method.name }}</td>
+    <td><span class="pill {% if o.status == 'cancelled' or o.status == 'returned' %}pill-danger{% elif o.status == 'completed' or o.status == 'delivered' %}pill-success{% elif o.status == 'pending' %}pill-warning{% else %}pill-primary{% endif %}">{{ o.get_status_display }}</span></td>
+  </tr>{% empty %}<tr><td colspan="7" class="muted">Không có đơn hàng.</td></tr>{% endfor %}</tbody>
+</table></div>

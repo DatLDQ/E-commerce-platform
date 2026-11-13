@@ -1,0 +1,26 @@
+{% extends "dashboard/base_dash.html" %}{% load shop %}
+{% block title %}Sản phẩm{% endblock %}
+{% block content %}
+<div class="dash-head"><h1>Sản phẩm</h1><a class="btn btn-primary" href="{% url 'dashboard:product_add' %}">+ Thêm sản phẩm</a></div>
+<form class="filters-bar" method="get">
+  <input type="search" name="q" value="{{ q }}" placeholder="Tên hoặc SKU" aria-label="Tìm sản phẩm">
+  <select name="status" aria-label="Lọc trạng thái"><option value="">Tất cả</option><option value="active" {% if status == "active" %}selected{% endif %}>Đang bán</option><option value="hidden" {% if status == "hidden" %}selected{% endif %}>Đã ẩn</option><option value="low" {% if status == "low" %}selected{% endif %}>Sắp hết hàng</option></select>
+  <button class="btn btn-ghost">Lọc</button>
+</form>
+<div class="panel"><div class="table-wrap"><table class="table">
+  <thead><tr><th></th><th>Sản phẩm</th><th>Danh mục</th><th>Giá bán</th><th>Giá vốn</th><th>Tồn kho</th><th>Đã bán</th><th>Trạng thái</th><th></th></tr></thead>
+  <tbody>{% for p in page %}<tr>
+    <td>{% with img=p.main_image %}{% if img %}<img class="thumb" src="{{ img.image.url }}" alt="">{% endif %}{% endwith %}</td>
+    <td><a href="{% url 'dashboard:product_edit' p.pk %}"><b>{{ p.name|truncatechars:48 }}</b></a><div class="small muted">{{ p.sku }} · {{ p.brand.name }}</div></td>
+    <td class="small">{{ p.category.name }}</td>
+    <td>{{ p.current_price|vnd }}{% if p.sale_price %}<div class="small muted"><s>{{ p.price|vnd }}</s></div>{% endif %}</td>
+    <td class="small">{{ p.cost_price|vnd }}</td>
+    <td><span class="{% if p.stock == 0 %}down{% elif p.low_stock %}stock-low{% endif %}"><b>{{ p.stock }}</b></span>
+      <form class="inline-form" method="post" action="{% url 'dashboard:product_stock' p.pk %}" style="margin-top:4px">{% csrf_token %}<input type="number" name="delta" step="1" required placeholder="±" title="Số dương: nhập thêm · Số âm: trừ bớt" aria-label="Điều chỉnh tồn kho"><button class="btn btn-sm btn-ghost">OK</button></form></td>
+    <td>{{ p.sold_count }}</td>
+    <td>{% if p.is_active %}<span class="pill pill-success">Đang bán</span>{% else %}<span class="pill">Đã ẩn</span>{% endif %}</td>
+    <td><form method="post" action="{% url 'dashboard:product_toggle' p.pk %}">{% csrf_token %}<button class="btn btn-sm btn-ghost">{% if p.is_active %}Ẩn{% else %}Bán lại{% endif %}</button></form></td>
+  </tr>{% empty %}<tr><td colspan="9" class="muted">Không có sản phẩm.</td></tr>{% endfor %}</tbody>
+</table></div></div>
+{% include "partials/pagination.html" %}
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "pages/policies/_base.html" %}
+{% block policy %}
+<h2>1. Điều kiện đổi trả</h2>
+<table class="table">
+  <thead><tr><th>Trường hợp</th><th>Thời hạn</th><th>Hình thức</th><th>Phí</th></tr></thead>
+  <tbody>
+    <tr><td>Lỗi kỹ thuật do nhà sản xuất</td><td>7 ngày</td><td>Đổi mới cùng mẫu hoặc hoàn tiền</td><td>Miễn phí</td></tr>
+    <tr><td>Giao sai mẫu, thiếu phụ kiện, hư hỏng do vận chuyển</td><td>7 ngày</td><td>Đổi đúng sản phẩm</td><td>Miễn phí</td></tr>
+    <tr><td>Không vừa ý (còn nguyên seal, chưa kích hoạt)</td><td>3 ngày</td><td>Đổi sản phẩm khác hoặc hoàn tiền</td><td>10% giá trị</td></tr>
+  </tbody>
+</table>
+<p>Không áp dụng cho sản phẩm đã qua sử dụng có dấu hiệu va đập, vào nước, hoặc thiếu hộp/phụ kiện (trừ trường hợp lỗi nhà sản xuất).</p>
+<h2>2. Quy trình</h2>
+<ol><li>Liên hệ hotline {{ BUSINESS.hotline }} hoặc <a href="{% url 'pages:contact' %}">gửi yêu cầu</a> kèm mã đơn và hình ảnh/video tình trạng sản phẩm.</li><li>Gửi sản phẩm về showroom hoặc chờ shipper đến lấy (miễn phí với lỗi nhà sản xuất).</li><li>Kiểm tra trong 2 ngày làm việc và thông báo kết quả.</li></ol>
+<h2>3. Hoàn tiền</h2>
+<p>Hoàn tiền trong 3–5 ngày làm việc qua phương thức đã thanh toán (VNPay/MoMo hoàn về nguồn; COD và chuyển khoản hoàn về tài khoản ngân hàng khách cung cấp).</p>
+{% endblock %}

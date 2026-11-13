@@ -1,0 +1,17 @@
+{% load shop %}Xin chào {{ order.full_name }},
+
+Đơn hàng {{ order.code }} của bạn hiện ở trạng thái: {{ order.get_status_display }}.
+Thanh toán: {{ order.get_payment_method_display }} — {{ order.get_payment_status_display }}
+
+{% for i in order.items.all %}- {{ i.product_name }} x{{ i.quantity }}: {{ i.line_total|vnd }}
+{% endfor %}
+Tạm tính: {{ order.subtotal|vnd }}
+Giảm giá: {{ order.discount|vnd }}
+Phí vận chuyển: {{ order.shipping_fee|vnd }}
+TỔNG CỘNG: {{ order.total|vnd }}
+
+Giao tới: {{ order.full_name }}, {{ order.phone }}, {{ order.address_line }}
+Theo dõi đơn hàng: {{ site_url }}{{ order.get_absolute_url }}
+
+Cảm ơn bạn đã mua sắm tại LevelUp Gear!
+Hotline 1900 0000 · support@levelupgear.vn

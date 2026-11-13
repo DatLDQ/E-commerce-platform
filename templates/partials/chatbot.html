@@ -1,0 +1,16 @@
+{% load static %}
+<button class="chat-fab" id="chat-fab" aria-label="Mở trợ lý LevelBot" aria-controls="chat-panel" aria-expanded="false"><svg class="icon"><use href="#i-chat"/></svg></button>
+<section class="chat-panel" id="chat-panel" aria-label="Trợ lý mua sắm LevelBot" data-endpoint="{% url 'chatbot:message' %}">
+  <div class="chat-head">
+    <svg class="icon"><use href="#i-gamepad"/></svg>
+    <div><strong>LevelBot</strong><div class="small" style="opacity:.85">Trợ lý mua sắm · trả lời tức thì</div></div>
+    <button class="icon-btn" id="chat-close" aria-label="Đóng trợ lý"><svg class="icon"><use href="#i-close"/></svg></button>
+  </div>
+  <div class="chat-body" id="chat-body" aria-live="polite"></div>
+  <form class="chat-form" id="chat-form">
+    <label class="sr-only" for="chat-input">Nhập câu hỏi</label>
+    <input id="chat-input" type="text" maxlength="500" placeholder="VD: chuột không dây dưới 1 triệu" autocomplete="off">
+    <button class="icon-btn" style="background:var(--primary);color:#fff" aria-label="Gửi"><svg class="icon"><use href="#i-send"/></svg></button>
+  </form>
+</section>
+<script src="{% static 'js/chatbot.js' %}" defer></script>

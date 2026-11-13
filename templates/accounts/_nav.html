@@ -1,0 +1,9 @@
+{% url 'accounts:profile' as u1 %}{% url 'orders:mine' as u2 %}{% url 'accounts:addresses' as u3 %}{% url 'catalog:wishlist' as u4 %}{% url 'accounts:privacy' as u5 %}
+<nav class="card side-nav" aria-label="Tài khoản" style="align-self:start">
+  <a href="{{ u1 }}" {% if request.path == u1 %}class="active"{% endif %}><svg class="icon"><use href="#i-user"/></svg>Hồ sơ</a>
+  <a href="{{ u2 }}" {% if request.path == u2 %}class="active"{% endif %}><svg class="icon"><use href="#i-box"/></svg>Đơn hàng</a>
+  <a href="{{ u3 }}" {% if request.path == u3 %}class="active"{% endif %}><svg class="icon"><use href="#i-pin"/></svg>Sổ địa chỉ</a>
+  <a href="{{ u4 }}"><svg class="icon"><use href="#i-heart"/></svg>Yêu thích</a>
+  <a href="{{ u5 }}" {% if request.path == u5 %}class="active"{% endif %}><svg class="icon"><use href="#i-lock"/></svg>Quyền riêng tư</a>
+  <a href="{% url 'accounts:password_change' %}"><svg class="icon"><use href="#i-shield"/></svg>Đổi mật khẩu</a>
+</nav>
